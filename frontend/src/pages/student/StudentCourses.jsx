@@ -1,0 +1,476 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ArrowRight,
+  BookOpen,
+  Clock,
+  GraduationCap,
+  Signal,
+} from "lucide-react";
+import DashboardLayout from "../../layouts/DashboardLayout.jsx";
+import CourseCard from "../../components/course/CourseCard.jsx";
+import EmptyState from "../../components/ui/EmptyState.jsx";
+import Skeleton from "../../components/ui/Skeleton.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
+import { useToast } from "../../context/ToastContext.jsx";
+import { getNavigation } from "../../config/navigation.js";
+import {
+  enrollInCourseRequest,
+  getCourseCatalogueRequest,
+  getMyCoursesRequest,
+} from "../../services/courses.js";
+
+function formatDuration(minutes) {
+  if (!minutes) return "";
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  if (!hours) return `${remainingMinutes} min`;
+  return remainingMinutes
+    ? `${hours} hr ${remainingMinutes} min`
+    : `${hours} hr`;
+}
+
+function CourseGrid({
+  courses,
+  onOpen,
+  onEnroll,
+  enrollingCourseId,
+  light = false,
+}) {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      {courses.map((course) => (
+        <CourseCard
+          key={course.id}
+          course={{
+            ...course,
+            duration: formatDuration(course.durationMinutes),
+            progress: course.progressPercent ?? 0,
+            status: course.isComplete
+              ? "Completed"
+              : course.progressPercent > 0
+                ? "In progress"
+                : "Not started",
+          }}
+          isEnrolled={Boolean(course.isEnrolled)}
+          showProgress={Boolean(course.isEnrolled)}
+          light={light}
+          actionDisabled={enrollingCourseId === course.id}
+          actionLoading={enrollingCourseId === course.id}
+          onContinue={() => onOpen(course)}
+          onEnroll={() => onEnroll(course)}
+        />
+      ))}
+    </div>
+  );
+}
+
+function CourseArtwork({ course }) {
+  const isJavaScript = String(course.title || "")
+    .toLowerCase()
+    .includes("javascript");
+  const initials = String(course.title || "Course")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0].toUpperCase())
+    .join("");
+
+  return (
+    <div
+      className="relative flex min-h-[230px] items-center justify-center overflow-hidden bg-[radial-gradient(ellipse_at_55%_55%,rgba(0,132,255,0.42),transparent_58%),linear-gradient(145deg,#082d66_0%,#041a3a_48%,#031127_100%)] md:min-h-full"
+      role="img"
+      aria-label={`${course.title} course artwork`}
+    >
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 520 340"
+        fill="none"
+        preserveAspectRatio="xMidYMid slice"
+        aria-hidden="true"
+      >
+        <ellipse
+          cx="267"
+          cy="174"
+          rx="214"
+          ry="93"
+          transform="rotate(-13 267 174)"
+          stroke="#168cff"
+          strokeWidth="3"
+          opacity="0.9"
+        />
+        <ellipse
+          cx="286"
+          cy="190"
+          rx="203"
+          ry="83"
+          transform="rotate(12 286 190)"
+          stroke="#ff8a00"
+          strokeWidth="2"
+          opacity="0.75"
+        />
+      </svg>
+
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_55%_55%,transparent_26%,rgba(3,14,32,0.42)_82%)]" />
+
+      <div className="absolute bottom-8 left-[8%] right-[8%] z-[1] h-5 skew-x-[-18deg] rounded-b-2xl border border-[#78d7ff]/80 bg-gradient-to-b from-[#d7efff] via-[#7899bd] to-[#1d3151] shadow-[0_10px_28px_rgba(0,119,255,0.45)]" />
+
+      <div className="relative z-[2] w-[84%] max-w-[390px] -translate-y-3 -rotate-[3deg] rounded-[18px] border-[3px] border-[#43c8ff] bg-[#061a37] p-2.5 shadow-[0_0_32px_rgba(0,142,255,0.55)] sm:p-3">
+        <div className="flex h-6 items-center gap-1.5 border-b border-white/10 px-1">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#ff5e58]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#ffc42e]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#24d46a]" />
+          <span className="ml-auto h-1.5 w-12 rounded-full bg-[#28456d]" />
+        </div>
+
+        <div className="overflow-hidden px-2 py-3 font-mono text-[9px] leading-[1.8] text-[#d9e8ff] sm:px-4 sm:text-[11px]">
+          <p>
+            <span className="text-[#d886ff]">const</span>{" "}
+            <span className="text-[#67ccff]">add</span> = (a, b) =&gt; {"{"}
+          </p>
+          <p className="pl-4">
+            <span className="text-[#c6e879]">return</span> a + b;
+          </p>
+          <p>{"};"}</p>
+          <p className="mt-2">
+            <span className="text-[#d886ff]">const</span>{" "}
+            <span className="text-[#67ccff]">numbers</span> = [1, 2, 3];
+          </p>
+          <p>
+            <span className="text-[#d886ff]">const</span> total = numbers.
+            <span className="text-[#ffc857]">reduce</span>(
+          </p>
+          <p className="pl-4">
+            (sum, n) =&gt; sum + n, <span className="text-[#ffbd61]">0</span>
+          </p>
+          <p>);</p>
+        </div>
+      </div>
+
+      {isJavaScript ? (
+        <img
+          src="/javascript-foundations.png"
+          alt=""
+          className="absolute bottom-5 left-[10%] z-[3] h-[68px] w-[68px] -rotate-6 drop-shadow-[0_12px_18px_rgba(0,0,0,0.5)] sm:h-[82px] sm:w-[82px]"
+        />
+      ) : (
+        <span className="absolute bottom-6 left-[10%] z-[3] flex h-[68px] w-[68px] -rotate-6 items-center justify-center rounded-2xl bg-gradient-to-br from-[#ffe978] to-[#f4a900] font-display text-xl font-bold text-[#071d3c] shadow-[0_12px_18px_rgba(0,0,0,0.45)] sm:h-[82px] sm:w-[82px]">
+          {initials}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function EnrolledCourseCard({ course, onOpen }) {
+  const progress = Math.min(
+    100,
+    Math.max(0, Number(course.progressPercent) || 0)
+  );
+  const isComplete = Boolean(course.isComplete) || progress >= 100;
+  const isJavaScript = String(course.title || "")
+    .toLowerCase()
+    .includes("javascript");
+  const duration = formatDuration(course.durationMinutes);
+
+  return (
+    <article className="grid overflow-hidden rounded-[20px] border border-white/80 bg-[#eaf3ff]/90 shadow-[0_14px_36px_rgba(12,46,91,0.18)] backdrop-blur-md md:min-h-[260px] md:grid-cols-[1.04fr_0.96fr]">
+      <div className="relative z-[1] flex flex-col bg-gradient-to-br from-[#f7fbff]/95 via-[#e5f0ff]/95 to-[#cfe2ff]/95 p-5 sm:p-6 lg:p-7">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center rounded-full border border-[#f5b400] bg-white/70 px-3.5 py-1 text-[11px] font-semibold text-[#1b2b45]">
+            {course.category || "Course"}
+          </span>
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1 text-[11px] font-semibold ${
+              isComplete
+                ? "border-[#7cd6b7] bg-[#d6f7ed]/80 text-[#13835e]"
+                : "border-[#f4c66b] bg-[#fff5dd]/80 text-[#a56600]"
+            }`}
+          >
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                isComplete ? "bg-[#16a878]" : "bg-[#ed9e19]"
+              }`}
+              aria-hidden="true"
+            />
+            {isComplete ? "Completed" : progress > 0 ? "In progress" : "Not started"}
+          </span>
+        </div>
+
+        <h2 className="mt-3 font-display text-[20px] font-bold leading-tight tracking-tight text-[#0b1c3a] sm:text-[23px]">
+          {course.title}
+        </h2>
+        <p className="mt-1.5 line-clamp-2 max-w-[540px] text-sm leading-5 text-[#344a6a]">
+          {course.description}
+        </p>
+
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[#3d5271]">
+          <span className="inline-flex items-center gap-2">
+            <BookOpen size={16} aria-hidden="true" />
+            {course.lessonCount || 0} lessons
+          </span>
+          <span className="h-5 w-px bg-[#a9bdd8]" aria-hidden="true" />
+          <span className="inline-flex items-center gap-2">
+            <Clock size={16} aria-hidden="true" />
+            {duration || "Self-paced"}
+          </span>
+          <span className="h-5 w-px bg-[#a9bdd8]" aria-hidden="true" />
+          <span className="inline-flex items-center gap-2">
+            <Signal size={16} aria-hidden="true" />
+            {course.level || "Beginner"}
+          </span>
+        </div>
+
+        <div className="mt-4">
+          <div className="mb-2 flex items-center justify-between gap-3 text-xs">
+            <span className="text-[#344a6a]">Course progress</span>
+            <span className="font-bold text-[#0b1c3a]">
+              {Math.round(progress)}%
+            </span>
+          </div>
+          <div
+            className="h-2.5 overflow-hidden rounded-full bg-[#d5e0ef]"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(progress)}
+            aria-label="Course progress"
+          >
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[#ffc21b] via-[#ffb21a] to-[#168cff] transition-[width] duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="mt-auto pt-4">
+          <button
+            type="button"
+            onClick={() => onOpen(course)}
+            className="inline-flex min-w-[190px] items-center justify-center gap-2.5 rounded-lg bg-gradient-to-r from-[#ffc21b] to-[#ffb719] px-5 py-2.5 text-sm font-semibold text-[#071d3c] shadow-[0_6px_16px_rgba(255,177,25,0.26)] transition hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#216fe4]"
+          >
+            Continue learning
+            <ArrowRight size={17} aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+
+      {isJavaScript ? (
+        <div className="relative min-h-[180px] overflow-hidden bg-[#061a37] md:min-h-full">
+          <img
+            src="/javascript-course-artwork.png"
+            alt=""
+            className="absolute left-1/2 top-1/2 h-[82%] w-[82%] -translate-x-1/2 -translate-y-1/2 object-contain"
+          />
+        </div>
+      ) : course.thumbnailUrl ? (
+        <div className="relative min-h-[180px] overflow-hidden bg-[#061a37] md:min-h-full">
+          <img
+            src={course.thumbnailUrl}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#061a37]/10 to-transparent" />
+        </div>
+      ) : (
+        <CourseArtwork course={course} />
+      )}
+    </article>
+  );
+}
+
+export default function StudentCourses() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [catalogue, setCatalogue] = useState([]);
+  const [myCourses, setMyCourses] = useState([]);
+  const [status, setStatus] = useState("loading");
+  const [error, setError] = useState("");
+  const [enrollingCourseId, setEnrollingCourseId] = useState(null);
+
+  const loadCourses = useCallback(async () => {
+    setStatus("loading");
+    setError("");
+
+    try {
+      const [catalogueResponse, myCoursesResponse] = await Promise.all([
+        getCourseCatalogueRequest(),
+        getMyCoursesRequest(),
+      ]);
+      setCatalogue(catalogueResponse.data.courses);
+      setMyCourses(myCoursesResponse.data.courses);
+      setStatus("success");
+    } catch (requestError) {
+      setError(requestError.message || "Could not load courses.");
+      setStatus("error");
+    }
+  }, []);
+
+  useEffect(() => {
+    loadCourses();
+  }, [loadCourses]);
+
+  const availableCourses = useMemo(
+    () => catalogue.filter((course) => !course.isEnrolled),
+    [catalogue]
+  );
+
+  async function handleEnroll(course) {
+    setEnrollingCourseId(course.id);
+
+    try {
+      await enrollInCourseRequest(course.id);
+      toast({
+        tone: "success",
+        title: "You're enrolled",
+        description: `${course.title} is now in your courses.`,
+      });
+      await loadCourses();
+    } catch (requestError) {
+      toast({
+        tone: "danger",
+        title: "Could not enrol",
+        description: requestError.message || "Please try again.",
+      });
+    } finally {
+      setEnrollingCourseId(null);
+    }
+  }
+
+  return (
+    <DashboardLayout
+      title="My Courses"
+      subtitle="Your Kodewar learning workspace"
+      navItems={getNavigation(user.role)}
+      variant="light"
+      showHome
+      showRole
+      mainClassName="mx-auto w-full max-w-none p-0"
+    >
+      <div className="min-h-[calc(100vh-4rem)] bg-[url('/login-background.png')] bg-cover bg-center bg-no-repeat bg-fixed">
+        <div className="mx-auto w-full max-w-[1400px] space-y-8 px-4 py-6 sm:px-8 lg:px-[60px] lg:py-8">
+          <header>
+            <p className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#f07600]">
+              <span className="h-0.5 w-8 bg-[#ff9700]" aria-hidden="true" />
+              Student workspace
+            </p>
+            <h1 className="mt-2 font-display text-[34px] font-bold leading-tight tracking-tight text-[#0b1c3a] sm:text-[40px]">
+              Courses
+            </h1>
+            <p className="mt-1 max-w-[460px] text-sm leading-6 text-[#243957]">
+              Browse published courses, enrol, and explore each course&apos;s
+              weekly modules and lessons.
+            </p>
+          </header>
+
+          {status === "loading" ? (
+            <div className="space-y-8" aria-label="Loading courses">
+              <Skeleton className="h-[350px] rounded-3xl bg-white/65" />
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <Skeleton
+                    key={index}
+                    className="h-72 rounded-xl bg-white/65"
+                  />
+                ))}
+              </div>
+            </div>
+          ) : status === "error" ? (
+            <div
+              role="alert"
+              className="rounded-xl border border-rose-300 bg-white/75 p-5 text-sm text-rose-700 shadow-lg"
+            >
+              <p>{error}</p>
+              <button
+                type="button"
+                className="mt-3 font-semibold underline underline-offset-4"
+                onClick={loadCourses}
+              >
+                Try again
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-10">
+              <section aria-labelledby="enrolled-courses-heading">
+                <div className="mb-4">
+                  <h2
+                    id="enrolled-courses-heading"
+                    className="student-page-heading font-display text-[21px] font-bold tracking-tight text-[#101f3c]"
+                  >
+                    My learning
+                  </h2>
+                  <span className="mt-1 block text-sm font-semibold text-[#1263e8]">
+                    {myCourses.length} enrolled{" "}
+                    {myCourses.length === 1 ? "course" : "courses"}
+                  </span>
+                </div>
+
+                {myCourses.length ? (
+                  <div className="space-y-5">
+                    {myCourses.map((course) => (
+                      <EnrolledCourseCard
+                        key={course.id}
+                        course={course}
+                        onOpen={(selectedCourse) =>
+                          navigate(`/student/courses/${selectedCourse.id}`)
+                        }
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState
+                    icon={GraduationCap}
+                    title="You haven't enrolled in a course yet"
+                    description="Choose a published course from the catalogue below to get started."
+                    className="py-8"
+                    light
+                  />
+                )}
+              </section>
+
+              <section aria-labelledby="course-catalogue-heading">
+                <div className="mb-4">
+                  <h2
+                    id="course-catalogue-heading"
+                    className="student-page-heading font-display text-[21px] font-bold tracking-tight text-[#101f3c]"
+                  >
+                    Course catalogue
+                  </h2>
+                  <p className="mt-1 text-xs text-[#344a6a]">
+                    Published courses available to students
+                  </p>
+                </div>
+
+                {availableCourses.length ? (
+                  <CourseGrid
+                    courses={availableCourses}
+                    onOpen={(course) =>
+                      navigate(`/student/courses/${course.id}`)
+                    }
+                    onEnroll={handleEnroll}
+                    enrollingCourseId={enrollingCourseId}
+                    light
+                  />
+                ) : (
+                  <EmptyState
+                    icon={BookOpen}
+                    title="No new courses available"
+                    description={
+                      catalogue.length
+                        ? "You're enrolled in every course currently in the catalogue."
+                        : "There are no published courses yet. The catalogue will show courses once course content is added and published."
+                    }
+                    className="py-8 [&>span]:!border-[#bad4fa] [&>span]:!bg-[#eaf3ff] [&>span]:!text-[#2475df] [&>h3]:!text-[#0b1c3a] [&>p]:!text-[#344a6a]"
+                    light
+                  />
+                )}
+              </section>
+            </div>
+          )}
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+}
