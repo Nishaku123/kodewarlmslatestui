@@ -87,6 +87,17 @@ try {
   admin = client(adminLogin.cookie);
   const student = client(studentLogin.cookie);
 
+  expect(
+    "anonymous media uploads are rejected",
+    await anonymous("POST", "/manage/uploads/image"),
+    401
+  );
+  expect(
+    "students cannot upload staff media",
+    await student("POST", "/manage/uploads/image"),
+    403
+  );
+
   /* Certificate access rules ------------------------------------------- */
   expect(
     "anonymous certificate list is rejected",

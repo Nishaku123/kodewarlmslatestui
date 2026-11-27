@@ -206,7 +206,6 @@ export default function Login() {
               onChange={(event) => setEmail(event.target.value)}
               placeholder="Enter your email address"
               autoComplete="email"
-              autoFocus
               required
               aria-invalid={fieldErrors.email ? "true" : undefined}
               aria-describedby={

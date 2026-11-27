@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { requireAdmin, requireAuth, requireStaff } from "../middleware/auth.js";
+import { parseMediaUpload } from "../middleware/mediaUpload.js";
+import { uploadMediaHandler } from "../controllers/manage.upload.controller.js";
 import {
   createCourseHandler,
   deleteCourseHandler,
@@ -78,6 +80,9 @@ import {
 const router = Router();
 
 router.use(requireAuth, requireStaff);
+
+/* Media uploads ------------------------------------------------------ */
+router.post("/uploads/:kind", parseMediaUpload, uploadMediaHandler);
 
 /* Courses ------------------------------------------------------------ */
 router.get("/courses", listCourses);

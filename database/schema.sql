@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS lessons (
   description TEXT NOT NULL,
   position INT UNSIGNED NOT NULL DEFAULT 1,
   duration_minutes INT UNSIGNED NOT NULL DEFAULT 0,
-  video_provider ENUM('youtube', 'vimeo', 'direct') NULL,
+  video_provider ENUM('youtube', 'vimeo', 'direct', 'backblaze') NULL,
   video_url VARCHAR(2048) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

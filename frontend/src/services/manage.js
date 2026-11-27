@@ -56,6 +56,18 @@ export function setManagedCoursePublishedRequest(courseId, isPublished) {
   );
 }
 
+export function uploadManagedMediaRequest(file, kind) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return apiRequest(`/manage/uploads/${encodeURIComponent(kind)}`, {
+    method: "POST",
+    body: formData,
+    retry: false,
+    timeoutMs: 30 * 60 * 1000,
+  });
+}
+
 /* Modules ------------------------------------------------------------- */
 
 export function getCourseModulesRequest(courseId) {

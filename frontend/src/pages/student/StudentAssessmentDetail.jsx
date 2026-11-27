@@ -45,27 +45,28 @@ function ResultView({ assessment, result, onReview, onRetake, retakeLoading }) {
   return (
     <div className="space-y-5">
       <Card
+        light
         className={
           passed
-            ? "border-emerald-400/25 bg-gradient-to-br from-emerald-400/[0.08] via-ink-900/60 to-ink-900/60"
-            : "border-amber-300/25 bg-gradient-to-br from-amber-300/[0.06] via-ink-900/60 to-ink-900/60"
+            ? "border-emerald-200 bg-gradient-to-br from-emerald-50 to-white"
+            : "border-amber-200 bg-gradient-to-br from-amber-50 to-white"
         }
       >
         <CardContent className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center">
-          <ProgressRing value={attempt.score} size={132} label="Score" />
+          <ProgressRing value={attempt.score} size={132} label="Score" light />
 
           <div className="min-w-0 flex-1">
-            <Badge tone={passed ? "success" : "warning"} dot>
+            <Badge tone={passed ? "success" : "warning"} dot light>
               {passed ? "Passed" : "Not passed yet"}
             </Badge>
-            <h2 className="mt-3 font-display text-xl font-semibold text-white">
+            <h2 className="mt-3 font-display text-xl font-semibold text-[#0b1c3a]">
               Attempt {attempt.attemptNumber} submitted
             </h2>
-            <p className="mt-1 text-sm leading-6 text-mist-400">
+            <p className="mt-1 text-sm leading-6 text-[#526782]">
               You earned {attempt.earnedPoints} of {attempt.totalPoints} points.
               The pass mark is {result.assessment.passingScore}%.
             </p>
-            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-mist-500">
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-[#64748b]">
               <span>
                 Attempts used: {result.assessment.attemptsUsed}
                 {result.assessment.maxAttempts
@@ -80,7 +81,7 @@ function ResultView({ assessment, result, onReview, onRetake, retakeLoading }) {
             <div className="mt-5 flex flex-wrap gap-2">
               <Link
                 to="/student/assessments"
-                className={buttonClasses({ variant: "secondary", size: "sm" })}
+                className={buttonClasses({ variant: "secondary", size: "sm", light: true })}
               >
                 Back to assessments
               </Link>
@@ -90,12 +91,13 @@ function ResultView({ assessment, result, onReview, onRetake, retakeLoading }) {
                   loading={retakeLoading}
                   icon={RotateCcw}
                   onClick={onRetake}
+                  light
                 >
                   Try again
                 </Button>
               ) : null}
               {!passed && !result.assessment.canRetake ? (
-                <span className="self-center text-xs text-mist-500">
+                <span className="self-center text-xs text-[#64748b]">
                   No attempts remain. Review the explanations below and speak to
                   your trainer.
                 </span>
@@ -104,17 +106,18 @@ function ResultView({ assessment, result, onReview, onRetake, retakeLoading }) {
           </div>
 
           {onReview ? (
-            <Button variant="ghost" size="sm" onClick={onReview}>
+            <Button variant="ghost" size="sm" onClick={onReview} light>
               Review an earlier attempt
             </Button>
           ) : null}
         </CardContent>
       </Card>
 
-      <Card>
+      <Card light>
         <CardHeader
           title="Question review"
           description="Correct answers and explanations are shown after submission."
+          light
         />
         <CardContent className="space-y-4">
           {answers.map((answer, index) => {
@@ -132,17 +135,17 @@ function ResultView({ assessment, result, onReview, onRetake, retakeLoading }) {
             return (
               <div
                 key={answer.questionId}
-                className="rounded-lg border border-ink-800 bg-ink-950/30 p-4"
+                className="rounded-lg border border-[#d6e0ed] bg-[#f7f9fc] p-4"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <p className="text-sm font-medium text-white">
+                  <p className="text-sm font-medium text-[#0b1c3a]">
                     {index + 1}. {answer.prompt}
                   </p>
                   <span
                     className={
                       answer.isCorrect
-                        ? "shrink-0 text-emerald-300"
-                        : "shrink-0 text-rose-300"
+                        ? "shrink-0 text-emerald-700"
+                        : "shrink-0 text-rose-700"
                     }
                   >
                     {answer.isCorrect ? (
@@ -155,10 +158,10 @@ function ResultView({ assessment, result, onReview, onRetake, retakeLoading }) {
 
                 <dl className="mt-3 space-y-1.5 text-xs">
                   <div className="flex flex-wrap gap-x-2">
-                    <dt className="text-mist-500">Your answer:</dt>
+                    <dt className="text-[#64748b]">Your answer:</dt>
                     <dd
                       className={
-                        answer.isCorrect ? "text-emerald-200" : "text-rose-200"
+                        answer.isCorrect ? "text-emerald-700" : "text-rose-700"
                       }
                     >
                       {selected}
@@ -166,14 +169,14 @@ function ResultView({ assessment, result, onReview, onRetake, retakeLoading }) {
                   </div>
                   {!answer.isCorrect ? (
                     <div className="flex flex-wrap gap-x-2">
-                      <dt className="text-mist-500">Correct answer:</dt>
-                      <dd className="text-emerald-200">{correct}</dd>
+                      <dt className="text-[#64748b]">Correct answer:</dt>
+                      <dd className="text-emerald-700">{correct}</dd>
                     </div>
                   ) : null}
                   {answer.explanation ? (
                     <div className="flex flex-wrap gap-x-2">
-                      <dt className="text-mist-500">Why:</dt>
-                      <dd className="text-mist-300">{answer.explanation}</dd>
+                      <dt className="text-[#64748b]">Why:</dt>
+                      <dd className="text-[#334155]">{answer.explanation}</dd>
                     </div>
                   ) : null}
                 </dl>
@@ -199,18 +202,18 @@ function QuizView({
 
   return (
     <div className="space-y-5">
-      <Card>
+      <Card light>
         <CardContent>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-300">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c27a00]">
                 Attempt {assessment.activeAttempt.attemptNumber}
               </p>
-              <h2 className="mt-1 font-display text-lg font-medium text-white">
+              <h2 className="mt-1 font-display text-lg font-semibold text-[#0b1c3a]">
                 Answer every question you can
               </h2>
             </div>
-            <Badge tone="neutral">
+            <Badge tone="neutral" light>
               {answeredCount} of {total} answered
             </Badge>
           </div>
@@ -219,25 +222,26 @@ function QuizView({
             value={total ? (answeredCount / total) * 100 : 0}
             label="Answered"
             className="mt-4"
+            light
           />
 
-          <p className="mt-3 text-xs leading-5 text-mist-500">
+          <p className="mt-3 text-xs leading-5 text-[#526782]">
             Unanswered questions are marked incorrect. Your attempt is saved only
             when you submit it, and it cannot be changed afterwards.
           </p>
         </CardContent>
       </Card>
 
-      {actionError ? <Alert tone="danger" title="Could not submit">{actionError}</Alert> : null}
+      {actionError ? <Alert tone="danger" title="Could not submit" light>{actionError}</Alert> : null}
 
       {assessment.questions.map((question, index) => (
-        <Card key={question.id}>
+        <Card key={question.id} light>
           <CardContent>
             <fieldset>
-              <legend className="text-sm font-medium leading-6 text-white">
+              <legend className="text-sm font-medium leading-6 text-[#0b1c3a]">
                 {index + 1}. {question.prompt}
               </legend>
-              <p className="mt-1 text-[11px] text-mist-500">
+              <p className="mt-1 text-[11px] text-[#64748b]">
                 {question.points}{" "}
                 {question.points === 1 ? "point" : "points"}
               </p>
@@ -251,8 +255,8 @@ function QuizView({
                       key={option.id}
                       className={
                         checked
-                          ? "flex cursor-pointer items-start gap-3 rounded-lg border border-brand-500/50 bg-brand-500/10 px-3 py-2.5 text-sm text-white"
-                          : "flex cursor-pointer items-start gap-3 rounded-lg border border-ink-700 bg-ink-950/40 px-3 py-2.5 text-sm text-mist-300 transition-colors hover:border-ink-600 hover:text-white"
+                          ? "flex cursor-pointer items-start gap-3 rounded-lg border border-blue-300 bg-blue-50 px-3 py-2.5 text-sm text-[#0b1c3a]"
+                          : "flex cursor-pointer items-start gap-3 rounded-lg border border-[#d6e0ed] bg-white px-3 py-2.5 text-sm text-[#334155] transition-colors hover:border-blue-300 hover:bg-blue-50/50"
                       }
                     >
                       <input
@@ -261,7 +265,7 @@ function QuizView({
                         value={option.id}
                         checked={checked}
                         onChange={() => onSelect(question.id, option.id)}
-                        className="mt-0.5 h-4 w-4 accent-brand-500"
+                        className="mt-0.5 h-4 w-4 accent-blue-600"
                       />
                       <span>{option.text}</span>
                     </label>
@@ -279,16 +283,17 @@ function QuizView({
           icon={ListChecks}
           onClick={onSubmit}
           disabled={answeredCount === 0}
+          light
         >
           Submit attempt
         </Button>
         <Link
           to="/student/assessments"
-          className={buttonClasses({ variant: "ghost", size: "sm" })}
+          className={buttonClasses({ variant: "ghost", size: "sm", light: true })}
         >
           Save for later
         </Link>
-        <span className="text-xs text-mist-500">
+        <span className="text-xs text-[#64748b]">
           Your started attempt stays open until you submit it.
         </span>
       </div>
@@ -410,11 +415,13 @@ export default function StudentAssessmentDetail() {
       title="Assessment"
       subtitle="Your Kodewar learning workspace"
       navItems={getNavigation(user.role)}
+            variant="light"
+
     >
       <div className="mb-5">
         <Link
           to="/student/assessments"
-          className={buttonClasses({ variant: "ghost", size: "sm" })}
+          className={buttonClasses({ variant: "ghost", size: "sm", light: true })}
         >
           <ArrowLeft size={14} aria-hidden="true" />
           Back to assessments
@@ -423,11 +430,11 @@ export default function StudentAssessmentDetail() {
 
       {loading ? (
         <div className="space-y-4">
-          <Skeleton className="h-32 rounded-xl" />
-          <Skeleton className="h-64 rounded-xl" />
+          <Skeleton className="h-32 rounded-xl bg-white" />
+          <Skeleton className="h-64 rounded-xl bg-white" />
         </div>
       ) : loadError ? (
-        <Alert tone="danger" title="Could not load assessment">
+        <Alert tone="danger" title="Could not load assessment" light>
           {loadError}
         </Alert>
       ) : assessment ? (
@@ -436,6 +443,7 @@ export default function StudentAssessmentDetail() {
             eyebrow={`Week ${assessment.module.weekNumber} · ${assessment.module.title}`}
             title={assessment.title}
             description={assessment.description}
+            light
             actions={
               <Badge
                 tone={
@@ -446,6 +454,7 @@ export default function StudentAssessmentDetail() {
                       : "neutral"
                 }
                 dot
+                light
               >
                 {assessment.passed
                   ? "Passed"
@@ -456,7 +465,7 @@ export default function StudentAssessmentDetail() {
             }
           />
 
-          <div className="mb-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-mist-500">
+          <div className="mb-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[#526782]">
             <span className="inline-flex items-center gap-1.5">
               <ListChecks size={14} aria-hidden="true" />
               {assessment.questions.length} questions
@@ -473,14 +482,14 @@ export default function StudentAssessmentDetail() {
             </span>
             <Link
               to={`/student/courses/${assessment.course.id}`}
-              className="text-brand-300 underline-offset-4 hover:underline"
+              className="text-[#2563eb] underline-offset-4 hover:underline"
             >
               {assessment.course.title}
             </Link>
           </div>
 
           {actionError && !showQuiz && !result ? (
-            <Alert tone="danger" title="Action failed" className="mb-5">
+            <Alert tone="danger" title="Action failed" className="mb-5" light>
               {actionError}
             </Alert>
           ) : null}
@@ -510,31 +519,32 @@ export default function StudentAssessmentDetail() {
             />
           ) : (
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(260px,0.8fr)]">
-              <Card>
+              <Card light>
                 <CardHeader
                   title="Before you start"
                   description="The server grades every attempt and enforces the unlock rules."
+                  light
                 />
                 <CardContent className="space-y-4">
                   {!assessment.isUnlocked ? (
-                    <Alert tone="warning" title="This assessment is locked">
+                    <Alert tone="warning" title="This assessment is locked" light>
                       Complete every lesson in week{" "}
                       {assessment.module.weekNumber - 1} to unlock it. Open the{" "}
                       <Link
                         to={`/student/courses/${assessment.course.id}`}
-                        className="font-semibold underline underline-offset-2"
+                        className="font-semibold text-[#2563eb] underline underline-offset-2"
                       >
                         course
                       </Link>{" "}
                       to continue.
                     </Alert>
                   ) : assessment.passed ? (
-                    <Alert tone="success" title="You have passed this assessment">
+                    <Alert tone="success" title="You have passed this assessment" light>
                       Your best score is {assessment.bestScore}%. You can review
                       submitted attempts below.
                     </Alert>
                   ) : (
-                    <Alert tone="info" title="Ready when you are">
+                    <Alert tone="info" title="Ready when you are" light>
                       You can start, leave and resume an attempt. It is only
                       graded when you submit it, and each submission uses one
                       attempt.
@@ -542,28 +552,28 @@ export default function StudentAssessmentDetail() {
                   )}
 
                   {assessment.questions.length === 0 ? (
-                    <p className="text-sm text-mist-400">
+                    <p className="text-sm text-[#526782]">
                       This assessment does not have any questions yet.
                     </p>
                   ) : null}
 
                   <dl className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-lg border border-ink-800 bg-ink-950/30 p-3">
-                      <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist-500">
+                    <div className="rounded-lg border border-[#d6e0ed] bg-[#f7f9fc] p-3">
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#64748b]">
                         Attempts used
                       </dt>
-                      <dd className="mt-1 text-sm text-mist-100">
+                      <dd className="mt-1 text-sm text-[#0b1c3a]">
                         {assessment.attemptsUsed}
                         {assessment.maxAttempts
                           ? ` of ${assessment.maxAttempts}`
                           : " (unlimited)"}
                       </dd>
                     </div>
-                    <div className="rounded-lg border border-ink-800 bg-ink-950/30 p-3">
-                      <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist-500">
+                    <div className="rounded-lg border border-[#d6e0ed] bg-[#f7f9fc] p-3">
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#64748b]">
                         Best score
                       </dt>
-                      <dd className="mt-1 text-sm text-mist-100">
+                      <dd className="mt-1 text-sm text-[#0b1c3a]">
                         {assessment.bestScore !== null
                           ? `${assessment.bestScore}%`
                           : "No attempts yet"}
@@ -580,11 +590,12 @@ export default function StudentAssessmentDetail() {
                         assessment.questions.length === 0
                       }
                       onClick={handleStart}
+                      light
                     >
                       {assessment.attemptsUsed > 0 ? "Retake assessment" : "Start assessment"}
                     </Button>
                     {!assessment.canAttempt && !assessment.passed ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs text-mist-500">
+                      <span className="inline-flex items-center gap-1.5 text-xs text-[#64748b]">
                         <Lock size={13} aria-hidden="true" />
                         {assessment.isUnlocked
                           ? "No attempts remaining."
@@ -595,10 +606,11 @@ export default function StudentAssessmentDetail() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card light>
                 <CardHeader
                   title="Attempt history"
                   description="Submitted attempts only"
+                  light
                 />
                 <CardContent>
                   {assessment.attempts.length ? (
@@ -606,18 +618,18 @@ export default function StudentAssessmentDetail() {
                       {assessment.attempts.map((attempt) => (
                         <li
                           key={attempt.id}
-                          className="flex items-center justify-between gap-3 rounded-lg border border-ink-800 bg-ink-950/30 px-3 py-3"
+                          className="flex items-center justify-between gap-3 rounded-lg border border-[#d6e0ed] bg-white px-3 py-3"
                         >
                           <div className="min-w-0">
-                            <p className="text-sm font-medium text-mist-100">
+                            <p className="text-sm font-medium text-[#0b1c3a]">
                               Attempt {attempt.attemptNumber} · {attempt.score}%
                             </p>
-                            <p className="mt-0.5 text-[11px] text-mist-500">
+                            <p className="mt-0.5 text-[11px] text-[#64748b]">
                               {formatDateTime(attempt.submittedAt)}
                             </p>
                           </div>
                           <div className="flex shrink-0 items-center gap-2">
-                            <Badge tone={attempt.passed ? "success" : "warning"}>
+                            <Badge tone={attempt.passed ? "success" : "warning"} light>
                               {attempt.passed ? "Passed" : "Failed"}
                             </Badge>
                             <Button
@@ -625,6 +637,7 @@ export default function StudentAssessmentDetail() {
                               size="sm"
                               loading={reviewingAttemptId === attempt.id}
                               onClick={() => handleReviewAttempt(attempt.id)}
+                              light
                             >
                               Review
                             </Button>
@@ -633,7 +646,7 @@ export default function StudentAssessmentDetail() {
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-mist-500">
+                    <p className="text-sm text-[#64748b]">
                       No submitted attempts yet.
                     </p>
                   )}

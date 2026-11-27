@@ -19,6 +19,8 @@ Current files:
     - certificates table with unique code and one certificate per student/course
 003_remove_super_admin_role.sql
     - moves any super admin account to admin and deletes the role
+004_add_backblaze_video_provider.sql
+    - allows lessons to use uploaded Backblaze B2 videos
 ```
 
 Rules for new migrations:

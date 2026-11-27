@@ -25,6 +25,8 @@ export default defineConfig(({ mode }) => {
       target: apiTarget,
       changeOrigin: true,
       secure: false,
+      timeout: 15 * 60 * 1000,
+      proxyTimeout: 15 * 60 * 1000,
       // When the API is down the default gateway error is an opaque 502.
       // Return a helpful JSON response instead so the UI can explain it.
       configure(proxyServer) {

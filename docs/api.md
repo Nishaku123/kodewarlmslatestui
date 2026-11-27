@@ -47,9 +47,11 @@ A student who is not enrolled cannot access its lesson content.
 - **Auth:** enrolled student
 - **Status:** `200 OK`
 
-Lesson videos support `youtube`, `vimeo`, or `direct` providers using
-`video_provider` and `video_url` in the `lessons` table. Direct playback uses
-the browser's native video element.
+Lesson videos support `youtube`, `vimeo`, `direct`, or `backblaze` providers
+using `video_provider` and `video_url` in the `lessons` table. Direct and
+Backblaze playback use the browser's native video element. For Backblaze,
+enrolled students receive a short-lived signed URL for unlocked lessons; the
+bucket does not need to be public.
 
 ## Progress and lesson completion
 
@@ -455,6 +457,19 @@ Routes marked **admin** require `admin`. Students always receive `403`.
 | `POST` | `/api/manage/courses/:courseId/publish` | Publish a course. Requires at least one module with at least one lesson. |
 | `POST` | `/api/manage/courses/:courseId/unpublish` | Unpublish a course. |
 
+### Media uploads
+
+| Method | Path | Purpose |
+|---|---|---|
+| `POST` | `/api/manage/uploads/image` | Upload a JPEG, PNG, GIF or WebP course image as multipart field `file`. Returns a stable B2 URL for `thumbnailUrl` and a temporary preview URL. |
+| `POST` | `/api/manage/uploads/video` | Compress an MP4, MOV or WebM lesson video to MP4 before storing it in B2. Returns a stable B2 URL for `videoUrl`, a temporary preview URL and the original/compressed sizes; save the lesson with `videoProvider: "backblaze"`. |
+
+Both endpoints require a signed-in trainer or admin and use the B2 bucket
+configured on the API. Image and video size limits are configured with
+`MAX_FILE_SIZE_MB` and `MAX_VIDEO_FILE_SIZE_MB`; the video limit applies to
+the source file before compression. Student media is served using temporary
+signed URLs, so the bucket can remain private.
+
 ### Modules and lessons
 
 | Method | Path | Purpose |
@@ -470,8 +485,8 @@ Routes marked **admin** require `admin`. Students always receive `403`.
 | `PATCH` | `/api/manage/lessons/:lessonId` | Update lesson text, duration, position or video. |
 | `DELETE` | `/api/manage/lessons/:lessonId` | **Admin.** Delete a lesson. |
 
-Lesson videos accept `videoProvider` of `youtube`, `vimeo` or `direct` together
-with an `https://` `videoUrl`.
+Lesson videos accept `videoProvider` of `youtube`, `vimeo`, `direct` or
+`backblaze` together with an `https://` `videoUrl`.
 
 ### Assessments and questions
 

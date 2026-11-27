@@ -15,6 +15,7 @@ export default function Input({
   type = "text",
   required = false,
   className,
+  light = false,
   ...props
 }) {
   const generatedId = useId();
@@ -33,7 +34,9 @@ export default function Input({
       {label ? (
         <label
           htmlFor={inputId}
-          className="mb-1.5 block text-xs font-medium text-mist-300"
+          className={`mb-1.5 block text-xs font-medium ${
+            light ? "text-[#334155]" : "text-mist-300"
+          }`}
         >
           {label}
           {required ? (
@@ -49,7 +52,9 @@ export default function Input({
           <Icon
             size={16}
             strokeWidth={1.75}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-mist-500"
+            className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${
+              light ? "text-[#64748b]" : "text-mist-500"
+            }`}
             aria-hidden="true"
           />
         ) : null}
@@ -61,13 +66,17 @@ export default function Input({
           aria-invalid={error ? "true" : undefined}
           aria-describedby={describedBy}
           className={cn(
-            "h-10 w-full rounded-lg border bg-[#0a2444]/80 px-3 text-sm text-white outline-none transition-colors duration-200 placeholder:text-mist-500",
+            light
+              ? "h-10 w-full rounded-lg border border-[#cbd7e5] bg-white px-3 text-sm text-[#0b1c3a] outline-none transition-colors duration-200 placeholder:text-[#94a3b8]"
+              : "h-10 w-full rounded-lg border bg-[#0a2444]/80 px-3 text-sm text-white outline-none transition-colors duration-200 placeholder:text-mist-500",
             "focus:border-[#45abff] focus:ring-2 focus:ring-[#248ff2]/20",
             Icon && "pl-9",
             isPassword && "pr-10",
             error
               ? "border-rose-400/60 focus:border-rose-400 focus:ring-rose-500/20"
-              : "border-ink-700 hover:border-ink-600"
+              : light
+                ? "border-[#cbd7e5] hover:border-[#94a3b8]"
+                : "border-ink-700 hover:border-ink-600"
           )}
           {...props}
         />
@@ -76,7 +85,11 @@ export default function Input({
           <button
             type="button"
             onClick={() => setPasswordVisible((visible) => !visible)}
-            className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-[#9bc9f5] transition-colors hover:bg-ink-800 hover:text-white"
+            className={`absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md transition-colors ${
+              light
+                ? "text-[#526782] hover:bg-[#edf4fc] hover:text-[#0b1c3a]"
+                : "text-[#9bc9f5] hover:bg-ink-800 hover:text-white"
+            }`}
             aria-label={passwordVisible ? "Hide password" : "Show password"}
             aria-pressed={passwordVisible}
           >
@@ -90,7 +103,10 @@ export default function Input({
       </div>
 
       {hint && !error ? (
-        <p id={hintId} className="mt-1.5 text-xs text-mist-500">
+        <p
+          id={hintId}
+          className={`mt-1.5 text-xs ${light ? "text-[#526782]" : "text-mist-500"}`}
+        >
           {hint}
         </p>
       ) : null}

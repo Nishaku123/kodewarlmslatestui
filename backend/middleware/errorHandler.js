@@ -17,7 +17,7 @@ export function errorHandler(error, req, res, next) {
 
   // In production we never expose internal error messages or stack traces.
   const message =
-    isServerError && env.nodeEnv === "production"
+    isServerError && env.nodeEnv === "production" && !error.isOperational
       ? "Something went wrong on the server."
       : error.message || "Something went wrong.";
 

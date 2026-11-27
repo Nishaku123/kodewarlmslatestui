@@ -9,9 +9,16 @@ import {
   listPublishedCoursesForStudent,
 } from "../models/course.model.js";
 import { getCourseProgress } from "../services/progress.service.js";
+import {
+  signCourseThumbnail,
+  signCourseThumbnails,
+  signModuleVideos,
+} from "../services/mediaDelivery.service.js";
 
 export const getCourseCatalogue = asyncHandler(async (req, res) => {
-  const courses = await listPublishedCoursesForStudent(req.user.id);
+  const courses = await signCourseThumbnails(
+    await listPublishedCoursesForStudent(req.user.id)
+  );
 
   res.status(200).json({
     success: true,
@@ -21,7 +28,9 @@ export const getCourseCatalogue = asyncHandler(async (req, res) => {
 });
 
 export const getMyCourses = asyncHandler(async (req, res) => {
-  const courses = await listEnrolledCoursesForStudent(req.user.id);
+  const courses = await signCourseThumbnails(
+    await listEnrolledCoursesForStudent(req.user.id)
+  );
 
   res.status(200).json({
     success: true,
@@ -39,14 +48,16 @@ export const getCourseDetails = asyncHandler(async (req, res) => {
   }
 
   const progress = await getCourseProgress(courseId, req.user.id);
+  const courseWithThumbnail = await signCourseThumbnail(course);
+  const modules = await signModuleVideos(progress.modules);
 
   res.status(200).json({
     success: true,
     message: "Course details",
     data: {
       course: {
-        ...course,
-        modules: progress.modules,
+        ...courseWithThumbnail,
+        modules,
         progress: progress.summary,
       },
     },

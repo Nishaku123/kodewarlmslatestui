@@ -29,6 +29,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export default function Account() {
   const { user, updateProfile, logout } = useAuth();
+  const lightAccount = user.role === "student";
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -148,23 +149,29 @@ export default function Account() {
       title="Profile"
       subtitle="Account details and security"
       navItems={getNavigation(user.role)}
+      variant={lightAccount ? "light" : "dark"}
+
     >
       <PageHeader
         eyebrow="Account settings"
         title="Your profile"
         description="These details come from the signed-in account. Changes are saved by the Express API and stored in TiDB."
+        light={lightAccount}
+        largeTitle={lightAccount}
+        titleAccent="profile"
       />
 
-      <div className="grid gap-5 lg:grid-cols-3">
-        <div className="space-y-5 lg:col-span-2">
-          <Card>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.8fr)_minmax(280px,1fr)]">
+        <div className="space-y-5">
+          <Card light={lightAccount}>
             <CardHeader
               title="Personal details"
               description="Your email address is used to sign in and cannot be changed here."
+              light={lightAccount}
             />
             <CardContent>
               {profileError ? (
-                <Alert tone="danger" title="Could not save your profile" className="mb-4">
+                <Alert tone="danger" title="Could not save your profile" className="mb-4" light={lightAccount}>
                   {profileError}
                 </Alert>
               ) : null}
@@ -173,6 +180,7 @@ export default function Account() {
                 <Input
                   label="Full name"
                   icon={UserRound}
+                  light={lightAccount}
                   value={fullName}
                   onChange={(event) => setFullName(event.target.value)}
                   autoComplete="name"
@@ -184,6 +192,7 @@ export default function Account() {
                   label="Email address"
                   type="email"
                   icon={Mail}
+                  light={lightAccount}
                   value={user.email}
                   readOnly
                   disabled
@@ -196,6 +205,7 @@ export default function Account() {
                     size="sm"
                     loading={savingProfile}
                     disabled={fullName.trim() === user.fullName}
+                    light={lightAccount}
                   >
                     Save changes
                   </Button>
@@ -205,6 +215,7 @@ export default function Account() {
                     variant="ghost"
                     onClick={() => setFullName(user.fullName)}
                     disabled={fullName.trim() === user.fullName}
+                    light={lightAccount}
                   >
                     Reset
                   </Button>
@@ -213,14 +224,15 @@ export default function Account() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card light={lightAccount}>
             <CardHeader
               title="Change password"
               description="Your current password is required. New passwords need at least 8 characters including a letter and a number."
+              light={lightAccount}
             />
             <CardContent>
               {passwordError ? (
-                <Alert tone="danger" title="Could not change your password" className="mb-4">
+                <Alert tone="danger" title="Could not change your password" className="mb-4" light={lightAccount}>
                   {passwordError}
                 </Alert>
               ) : null}
@@ -230,6 +242,7 @@ export default function Account() {
                   label="Current password"
                   type="password"
                   icon={KeyRound}
+                  light={lightAccount}
                   value={currentPassword}
                   onChange={(event) => setCurrentPassword(event.target.value)}
                   autoComplete="current-password"
@@ -242,6 +255,7 @@ export default function Account() {
                     label="New password"
                     type="password"
                     icon={KeyRound}
+                    light={lightAccount}
                     value={newPassword}
                     onChange={(event) => setNewPassword(event.target.value)}
                     autoComplete="new-password"
@@ -253,6 +267,7 @@ export default function Account() {
                     label="Confirm new password"
                     type="password"
                     icon={KeyRound}
+                    light={lightAccount}
                     value={confirmPassword}
                     onChange={(event) => setConfirmPassword(event.target.value)}
                     autoComplete="new-password"
@@ -261,7 +276,7 @@ export default function Account() {
                   />
                 </div>
 
-                <Button type="submit" size="sm" loading={savingPassword}>
+                <Button type="submit" size="sm" loading={savingPassword} light={lightAccount}>
                   Update password
                 </Button>
               </form>
@@ -270,47 +285,48 @@ export default function Account() {
         </div>
 
         <div className="space-y-5">
-          <Card>
-            <CardHeader title="Account summary" />
+          <Card light={lightAccount}>
+            <CardHeader title="Account summary" light={lightAccount} />
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-xs text-mist-500">Role</span>
-                <Badge tone="brand">{roleLabel(user.role)}</Badge>
+                <span className={`text-xs ${lightAccount ? "text-[#526782]" : "text-mist-500"}`}>Role</span>
+                <Badge tone="brand" light={lightAccount}>{roleLabel(user.role)}</Badge>
               </div>
 
               <div className="flex items-center justify-between gap-3">
-                <span className="text-xs text-mist-500">Status</span>
-                <Badge tone={user.status === "active" ? "success" : "danger"} dot>
+                <span className={`text-xs ${lightAccount ? "text-[#526782]" : "text-mist-500"}`}>Status</span>
+                <Badge tone={user.status === "active" ? "success" : "danger"} dot light={lightAccount}>
                   {user.status}
                 </Badge>
               </div>
 
-              <div className="border-t border-ink-800 pt-4">
-                <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-mist-500">
+              <div className={`border-t pt-4 ${lightAccount ? "border-[#e1e9f2]" : "border-ink-800"}`}>
+                <p className={`flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${lightAccount ? "text-[#64748b]" : "text-mist-500"}`}>
                   <CalendarDays size={11} aria-hidden="true" />
                   Member since
                 </p>
-                <p className="mt-1 text-xs text-mist-200">
+                <p className={`mt-1 text-xs ${lightAccount ? "text-[#334155]" : "text-mist-200"}`}>
                   {formatDate(user.createdAt)}
                 </p>
               </div>
 
               <div>
-                <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-mist-500">
+                <p className={`flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${lightAccount ? "text-[#64748b]" : "text-mist-500"}`}>
                   <ShieldCheck size={11} aria-hidden="true" />
                   Last sign in
                 </p>
-                <p className="mt-1 text-xs text-mist-200">
+                <p className={`mt-1 text-xs ${lightAccount ? "text-[#334155]" : "text-mist-200"}`}>
                   {formatDateTime(user.lastLoginAt)}
                 </p>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card light={lightAccount}>
             <CardHeader
               title="Session"
               description="Signing out clears the httpOnly authentication cookie on this device."
+              light={lightAccount}
             />
             <CardContent>
               <Button
@@ -320,6 +336,7 @@ export default function Account() {
                 icon={LogOut}
                 onClick={handleLogout}
                 loading={signingOut}
+                light={lightAccount}
               >
                 Sign out
               </Button>

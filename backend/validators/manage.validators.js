@@ -212,8 +212,11 @@ export function validateLessonVideo(provider, videoUrl) {
     return { videoProvider: null, videoUrl: null };
   }
 
-  if (!["youtube", "vimeo", "direct"].includes(provider)) {
-    fail("videoProvider", "videoProvider must be youtube, vimeo or direct.");
+  if (!["youtube", "vimeo", "direct", "backblaze"].includes(provider)) {
+    fail(
+      "videoProvider",
+      "videoProvider must be youtube, vimeo, direct or backblaze."
+    );
   }
 
   if (!videoUrl) {

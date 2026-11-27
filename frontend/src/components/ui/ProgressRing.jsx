@@ -7,6 +7,7 @@ export default function ProgressRing({
   strokeWidth = 10,
   label,
   className,
+  light = false,
 }) {
   const safeValue = Math.min(100, Math.max(0, Number(value) || 0));
   const gradientId = `ring-${useId().replace(/:/g, "")}`;
@@ -45,7 +46,7 @@ export default function ProgressRing({
           fill="none"
           stroke="currentColor"
           strokeWidth={strokeWidth}
-          className="text-ink-800"
+          className={light ? "text-[#e2e8f0]" : "text-ink-800"}
         />
 
         <circle
@@ -63,11 +64,19 @@ export default function ProgressRing({
       </svg>
 
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-display text-xl font-semibold text-white">
+        <span
+          className={`font-display text-xl font-semibold ${
+            light ? "text-[#0b1c3a]" : "text-white"
+          }`}
+        >
           {Math.round(safeValue)}%
         </span>
         {label ? (
-          <span className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-mist-500">
+          <span
+            className={`mt-0.5 text-[10px] uppercase tracking-[0.14em] ${
+              light ? "text-[#64748b]" : "text-mist-500"
+            }`}
+          >
             {label}
           </span>
         ) : null}

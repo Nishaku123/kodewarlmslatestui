@@ -18,6 +18,7 @@ import { listModulesByCourse } from "../models/module.model.js";
 import { listLessonsForModule } from "../models/lesson.model.js";
 import { listAssessmentsByModule } from "../models/assessment.model.js";
 import { listAssignmentsByModule } from "../models/assignment.model.js";
+import { addCourseThumbnailPreview } from "../services/mediaDelivery.service.js";
 
 function parseBooleanQuery(value) {
   if (value === undefined || value === "") return null;
@@ -99,7 +100,9 @@ export const listCourses = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "All courses",
-    data: { courses },
+    data: {
+      courses: await Promise.all(courses.map(addCourseThumbnailPreview)),
+    },
   });
 });
 
@@ -112,11 +115,12 @@ export const getCourse = asyncHandler(async (req, res) => {
   }
 
   const modules = await loadCourseContent(courseId);
+  const courseWithThumbnail = await addCourseThumbnailPreview(course);
 
   res.status(200).json({
     success: true,
     message: "Course content",
-    data: { course: { ...course, modules } },
+    data: { course: { ...courseWithThumbnail, modules } },
   });
 });
 
@@ -135,11 +139,12 @@ export const createCourseHandler = asyncHandler(async (req, res) => {
   }
 
   const course = await createCourse(data);
+  const courseWithThumbnail = await addCourseThumbnailPreview(course);
 
   res.status(201).json({
     success: true,
     message: "Course created.",
-    data: { course },
+    data: { course: courseWithThumbnail },
   });
 });
 
@@ -171,11 +176,12 @@ export const updateCourseHandler = asyncHandler(async (req, res) => {
   }
 
   const course = await updateCourse(courseId, data);
+  const courseWithThumbnail = await addCourseThumbnailPreview(course);
 
   res.status(200).json({
     success: true,
     message: "Course updated.",
-    data: { course },
+    data: { course: courseWithThumbnail },
   });
 });
 
@@ -210,11 +216,12 @@ function publicationHandler(isPublished) {
     }
 
     const course = await setCoursePublished(courseId, isPublished);
+    const courseWithThumbnail = await addCourseThumbnailPreview(course);
 
     res.status(200).json({
       success: true,
       message: isPublished ? "Course published." : "Course unpublished.",
-      data: { course },
+      data: { course: courseWithThumbnail },
     });
   });
 }

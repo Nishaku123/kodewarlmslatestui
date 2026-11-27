@@ -17,6 +17,7 @@ export default function Topbar({
   showRole = false,
 }) {
   const { user } = useAuth();
+  const student = user?.role === "student";
   const light = variant === "light";
 
   return (
@@ -43,7 +44,12 @@ export default function Topbar({
           <Menu size={18} aria-hidden="true" />
         </button>
 
-        <div className="min-w-0 shrink-0 lg:w-[190px]">
+        <div
+          className={cn(
+            "min-w-0 lg:w-[190px]",
+            student ? "flex-1 lg:flex-none" : "shrink-0"
+          )}
+        >
           <p
             className={cn(
               "truncate text-base",
@@ -105,7 +111,7 @@ export default function Topbar({
             </label>
           </div>
         ) : (
-          <div className="flex-1" />
+          <div className={student ? "hidden lg:block lg:flex-1" : "flex-1"} />
         )}
 
         {user ? (
@@ -115,28 +121,30 @@ export default function Topbar({
               light ? "" : "ml-auto"
             )}
           >
-            <Link
-              to="/student/assignments"
-              aria-label={
-                notificationCount
-                  ? `${notificationCount} assignments need attention`
-                  : "Assignments"
-              }
-              className={cn(
-                "relative inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors",
-                light
-                  ? "text-[#5d718c] hover:bg-[#f1f6fc] hover:text-[#0b1c3a]"
-                  : "text-mist-300 hover:bg-ink-800 hover:text-white"
-              )}
-            >
-              <Bell size={18} aria-hidden="true" />
-              {notificationCount ? (
-                <span
-                  className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#ff8a00] ring-2 ring-white"
-                  aria-hidden="true"
-                />
-              ) : null}
-            </Link>
+            {!student ? (
+              <Link
+                to="/student/assignments"
+                aria-label={
+                  notificationCount
+                    ? `${notificationCount} assignments need attention`
+                    : "Assignments"
+                }
+                className={cn(
+                  "relative inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors",
+                  light
+                    ? "text-[#5d718c] hover:bg-[#f1f6fc] hover:text-[#0b1c3a]"
+                    : "text-mist-300 hover:bg-ink-800 hover:text-white"
+                )}
+              >
+                <Bell size={18} aria-hidden="true" />
+                {notificationCount ? (
+                  <span
+                    className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#ff8a00] ring-2 ring-white"
+                    aria-hidden="true"
+                  />
+                ) : null}
+              </Link>
+            ) : null}
 
             <Link
               to="/account"

@@ -38,14 +38,47 @@ const tones = {
   },
 };
 
+const lightTones = {
+  info: {
+    wrapper: "border-blue-200 bg-blue-50",
+    icon: "text-blue-600",
+    title: "text-blue-950",
+    body: "text-blue-900",
+    Icon: Info,
+  },
+  success: {
+    wrapper: "border-emerald-200 bg-emerald-50",
+    icon: "text-emerald-600",
+    title: "text-emerald-950",
+    body: "text-emerald-900",
+    Icon: CheckCircle2,
+  },
+  warning: {
+    wrapper: "border-amber-200 bg-amber-50",
+    icon: "text-amber-600",
+    title: "text-amber-950",
+    body: "text-amber-900",
+    Icon: AlertTriangle,
+  },
+  danger: {
+    wrapper: "border-rose-200 bg-rose-50",
+    icon: "text-rose-600",
+    title: "text-rose-950",
+    body: "text-rose-900",
+    Icon: XCircle,
+  },
+};
+
 export default function Alert({
   tone = "info",
   title,
   children,
   onDismiss,
   className,
+  light = false,
 }) {
-  const style = tones[tone] || tones.info;
+  const style = (light ? lightTones : tones)[tone] ||
+    (light ? lightTones : tones).info;
   const Icon = style.Icon;
 
   return (
@@ -81,7 +114,8 @@ export default function Alert({
           onClick={onDismiss}
           aria-label="Dismiss message"
           className={cn(
-            "-mr-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-white/5",
+            "-mr-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors",
+            light ? "hover:bg-black/5" : "hover:bg-white/5",
             style.icon
           )}
         >

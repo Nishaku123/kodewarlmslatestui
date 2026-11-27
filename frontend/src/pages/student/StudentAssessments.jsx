@@ -12,6 +12,7 @@ import DashboardLayout from "../../layouts/DashboardLayout.jsx";
 import PageHeader from "../../components/layout/PageHeader.jsx";
 import { Card, CardContent } from "../../components/ui/Card.jsx";
 import Badge from "../../components/ui/Badge.jsx";
+import Alert from "../../components/ui/Alert.jsx";
 import EmptyState from "../../components/ui/EmptyState.jsx";
 import Skeleton from "../../components/ui/Skeleton.jsx";
 import StatCard from "../../components/ui/StatCard.jsx";
@@ -42,21 +43,21 @@ function AssessmentRow({ assessment }) {
   const StatusIcon = status.icon;
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-ink-800 bg-ink-950/30 p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 rounded-xl border border-[#d6e0ed] bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone={status.tone} dot>
+          <Badge tone={status.tone} dot light>
             {status.label}
           </Badge>
-          <span className="text-[11px] text-mist-500">
+          <span className="text-[11px] text-[#64748b]">
             Week {assessment.weekNumber} · {assessment.moduleTitle}
           </span>
         </div>
-        <h3 className="mt-2 font-medium text-white">{assessment.title}</h3>
-        <p className="mt-1 line-clamp-2 text-xs leading-5 text-mist-500">
+        <h3 className="mt-2 font-medium text-[#0b1c3a]">{assessment.title}</h3>
+        <p className="mt-1 line-clamp-2 text-xs leading-5 text-[#526782]">
           {assessment.description}
         </p>
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-mist-500">
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#526782]">
           <span>Pass mark {assessment.passingScore}%</span>
           <span>
             {assessment.attemptsUsed} of {assessment.maxAttempts || "∞"} attempts
@@ -81,7 +82,7 @@ function AssessmentRow({ assessment }) {
             <ArrowUpRight size={14} aria-hidden="true" />
           </Link>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-lg border border-ink-800 px-3 py-2 text-xs text-mist-500">
+          <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#d6e0ed] bg-[#f7f9fc] px-3 py-2 text-xs text-[#64748b]">
             <StatusIcon size={14} aria-hidden="true" />
             Locked
           </span>
@@ -141,28 +142,30 @@ export default function StudentAssessments() {
       title="Assessments"
       subtitle="Your Kodewar learning workspace"
       navItems={getNavigation(user.role)}
+            variant="light"
+
     >
       <PageHeader
         eyebrow="Student workspace"
         title="Assessments"
         description="Weekly quizzes unlock after that week's lessons. Pass mark, attempts and scores are always calculated by the server."
+        light
+        largeTitle
+        titleAccent="ments"
       />
 
       {error ? (
-        <div
-          role="alert"
-          className="rounded-xl border border-rose-400/20 bg-rose-400/5 p-5 text-sm text-rose-200"
-        >
+        <Alert tone="danger" title="Could not load assessments" light>
           {error}
-        </div>
+        </Alert>
       ) : assessments === null ? (
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
-              <Skeleton key={index} className="h-28 rounded-xl" />
+              <Skeleton key={index} className="h-[92px] rounded-xl bg-white" />
             ))}
           </div>
-          <Skeleton className="h-64 rounded-xl" />
+          <Skeleton className="h-64 rounded-xl bg-white" />
         </div>
       ) : assessments.length ? (
         <div className="space-y-6">
@@ -172,6 +175,8 @@ export default function StudentAssessments() {
               label="Assessments"
               value={summary.total}
               hint="Across your enrolled courses"
+              light
+              compact
             />
             <StatCard
               icon={CheckCircle2}
@@ -179,6 +184,8 @@ export default function StudentAssessments() {
               value={summary.passed}
               tone="success"
               hint="Completed assessment requirements"
+              light
+              compact
             />
             <StatCard
               icon={ListChecks}
@@ -186,6 +193,8 @@ export default function StudentAssessments() {
               value={summary.available}
               tone="cyan"
               hint="Unlocked and not yet passed"
+              light
+              compact
             />
             <StatCard
               icon={Lock}
@@ -193,25 +202,27 @@ export default function StudentAssessments() {
               value={summary.locked}
               tone="warning"
               hint="Finish earlier lessons to unlock"
+              light
+              compact
             />
           </div>
 
           {groups.map((group) => (
-            <Card key={group.courseId}>
+            <Card key={group.courseId} light>
               <CardContent>
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <h2 className="font-display text-lg font-medium text-white">
+                    <h2 className="font-display text-lg font-semibold text-[#0b1c3a]">
                       {group.courseTitle}
                     </h2>
-                    <p className="mt-1 text-xs text-mist-500">
+                    <p className="mt-1 text-xs text-[#64748b]">
                       {group.items.length}{" "}
                       {group.items.length === 1 ? "assessment" : "assessments"}
                     </p>
                   </div>
                   <Link
                     to={`/student/courses/${group.courseId}`}
-                    className={buttonClasses({ variant: "ghost", size: "sm" })}
+                    className={buttonClasses({ variant: "ghost", size: "sm", light: true })}
                   >
                     Open course
                     <ArrowUpRight size={14} aria-hidden="true" />
@@ -235,10 +246,11 @@ export default function StudentAssessments() {
           icon={ClipboardCheck}
           title="No assessments yet"
           description="Assessments appear here when a course you are enrolled in has a published weekly quiz."
+          light
           action={
             <Link
               to="/student/courses"
-              className={buttonClasses({ variant: "secondary", size: "sm" })}
+              className={buttonClasses({ variant: "secondary", size: "sm", light: true })}
             >
               Browse my courses
             </Link>

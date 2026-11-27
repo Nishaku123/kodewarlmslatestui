@@ -23,35 +23,69 @@ export default function DashboardLayout({
   showHome = false,
   showRole = false,
   mainClassName,
+  contentVariant,
 }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const closeMobileNav = useCallback(() => setMobileNavOpen(false), []);
   const light = variant === "light";
-  const student = useAuth().user?.role === "student";
+  const { user } = useAuth();
+  const student = user?.role === "student";
+  const admin = user?.role === "admin";
+  const trainer = user?.role === "trainer";
+  const lightStaffWorkspace = admin || trainer;
+  const lightContent =
+    lightStaffWorkspace || (contentVariant || variant) === "light";
+  const sidebarPadding =
+    student || light || admin || trainer
+      ? "lg:pl-[220px]"
+      : "lg:pl-[264px]";
+  const keepStudentBackground = student && title === "Overview";
 
   return (
     <div
-      className={`${student ? "student-font-poppins " : ""}${
-        light
+      className={`${
+        student
+          ? `student-font-poppins ${
+              keepStudentBackground ? "student-image-background " : ""
+            }`
+          : ""
+      }${
+        light || lightStaffWorkspace
           ? "min-h-screen overflow-x-clip bg-[#f3f7fd]"
           : "app-canvas min-h-screen overflow-x-clip"
       }`}
     >
-      <Sidebar navItems={navItems} variant={variant} student={student} />
+      <Sidebar
+        navItems={navItems}
+        variant={variant}
+        student={student}
+        admin={admin}
+        trainer={trainer}
+      />
 
       <MobileNav
         open={mobileNavOpen}
         onClose={closeMobileNav}
         navItems={navItems}
         student={student}
+        admin={admin}
+        trainer={trainer}
       />
 
-      <div className={light ? "lg:pl-[220px]" : "lg:pl-[264px]"}>
+      <div
+        className={`${sidebarPadding} ${
+          lightStaffWorkspace ? "staff-workspace" : ""
+        }`}
+      >
         <Topbar
           title={title}
           subtitle={subtitle}
           onMenuClick={() => setMobileNavOpen(true)}
-          variant={variant}
+          variant={
+            lightStaffWorkspace || light || contentVariant === "light"
+              ? "light"
+              : variant
+          }
           searchValue={searchValue}
           onSearchChange={onSearchChange}
           notificationCount={notificationCount}
@@ -59,16 +93,28 @@ export default function DashboardLayout({
           showRole={showRole}
         />
 
-        <main
+        <div
           className={
-            mainClassName ||
-            (light
-              ? "mx-auto w-full max-w-[1400px] px-4 py-5 sm:px-6 lg:px-6 lg:py-6"
-              : "mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8")
+            lightStaffWorkspace || (!light && lightContent)
+              ? "min-h-[calc(100vh-4rem)] bg-[#f3f7fd]"
+              : undefined
           }
         >
-          {children}
-        </main>
+          <main
+            className={
+              mainClassName ||
+              (lightStaffWorkspace
+                ? "mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8"
+                : contentVariant === "light" && !light
+                ? "mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8"
+                : light
+                  ? "mx-auto w-full max-w-[1400px] px-4 py-5 sm:px-6 lg:px-6 lg:py-6"
+                  : "mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8")
+            }
+          >
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   );

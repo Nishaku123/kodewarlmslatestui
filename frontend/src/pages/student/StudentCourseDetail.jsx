@@ -17,6 +17,7 @@ import DashboardLayout from "../../layouts/DashboardLayout.jsx";
 import PageHeader from "../../components/layout/PageHeader.jsx";
 import Badge from "../../components/ui/Badge.jsx";
 import Button, { buttonClasses } from "../../components/ui/Button.jsx";
+import Alert from "../../components/ui/Alert.jsx";
 import EmptyState from "../../components/ui/EmptyState.jsx";
 import ProgressBar from "../../components/ui/ProgressBar.jsx";
 import Skeleton from "../../components/ui/Skeleton.jsx";
@@ -39,7 +40,7 @@ function getVideoSource(provider, videoUrl) {
       return null;
     }
 
-    if (provider === "direct") {
+    if (provider === "direct" || provider === "backblaze") {
       return { type: "video", src: url.href };
     }
 
@@ -96,7 +97,7 @@ function LessonPlayer({ lesson }) {
 
   if (!lesson) {
     return (
-      <div className="flex aspect-video items-center justify-center rounded-xl border border-dashed border-ink-700 bg-ink-950/60 p-6 text-center text-sm text-mist-500">
+      <div className="flex aspect-video items-center justify-center rounded-xl border border-dashed border-[#cbd7e5] bg-white p-6 text-center text-sm text-[#64748b]">
         Select a lesson to view its content.
       </div>
     );
@@ -104,7 +105,7 @@ function LessonPlayer({ lesson }) {
 
   if (!lesson.isUnlocked) {
     return (
-      <div className="flex aspect-video flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-ink-700 bg-ink-950/60 p-6 text-center text-sm text-mist-500">
+      <div className="flex aspect-video flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[#cbd7e5] bg-white p-6 text-center text-sm text-[#64748b]">
         <Lock size={22} aria-hidden="true" />
         This lesson unlocks after the previous week is complete.
       </div>
@@ -113,7 +114,7 @@ function LessonPlayer({ lesson }) {
 
   if (!video) {
     return (
-      <div className="flex aspect-video items-center justify-center rounded-xl border border-dashed border-ink-700 bg-ink-950/60 p-6 text-center text-sm text-mist-500">
+      <div className="flex aspect-video items-center justify-center rounded-xl border border-dashed border-[#cbd7e5] bg-white p-6 text-center text-sm text-[#64748b]">
         {lesson.videoUrl
           ? "This lesson's video URL is not valid for the selected provider."
           : "A video has not been added to this lesson yet."}
@@ -256,11 +257,13 @@ export default function StudentCourseDetail() {
       title={course?.title || "Course"}
       subtitle="Your Kodewar learning workspace"
       navItems={getNavigation(user.role)}
+            variant="light"
+
     >
       <div className="mb-5">
         <Link
           to="/student/courses"
-          className={buttonClasses({ variant: "ghost", size: "sm" })}
+          className={buttonClasses({ variant: "ghost", size: "sm", light: true })}
         >
           <ArrowLeft size={14} aria-hidden="true" />
           Back to my courses
@@ -269,24 +272,21 @@ export default function StudentCourseDetail() {
 
       {loading ? (
         <div className="space-y-5">
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="aspect-video rounded-xl" />
-          <Skeleton className="h-44 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl bg-white" />
+          <Skeleton className="aspect-video rounded-xl bg-white" />
+          <Skeleton className="h-44 rounded-xl bg-white" />
         </div>
       ) : error ? (
-        <div
-          role="alert"
-          className="rounded-xl border border-rose-400/20 bg-rose-400/5 p-5 text-sm text-rose-200"
-        >
+        <Alert tone="danger" title="Could not load course" light>
           {error}
-        </div>
+        </Alert>
       ) : course ? (
         <>
           {course.thumbnailUrl ? (
             <img
               src={course.thumbnailUrl}
               alt=""
-              className="mb-5 h-44 w-full rounded-xl border border-ink-700 object-cover sm:h-56"
+              className="mb-5 h-44 w-full rounded-xl border border-[#d6e0ed] object-cover shadow-sm sm:h-56"
               onError={(event) => {
                 event.currentTarget.style.display = "none";
               }}
@@ -297,14 +297,15 @@ export default function StudentCourseDetail() {
             eyebrow="Course"
             title={course.title}
             description={course.description}
+            light
             actions={
-              <Badge tone={progress?.isComplete ? "success" : "brand"} dot>
+              <Badge tone={progress?.isComplete ? "success" : "brand"} dot light>
                 {progress?.isComplete ? "Course complete" : "Enrolled"}
               </Badge>
             }
           />
 
-          <div className="mb-3 flex flex-wrap gap-3 text-xs text-mist-400">
+          <div className="mb-3 flex flex-wrap gap-3 text-xs text-[#526782]">
             <span className="inline-flex items-center gap-1.5">
               <BookOpen size={14} aria-hidden="true" />
               {course.modules.length}{" "}
@@ -332,41 +333,42 @@ export default function StudentCourseDetail() {
               value={progress.progressPercent}
               label="Course progress"
               className="mb-6"
+              light
             />
           ) : null}
 
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(280px,0.8fr)]">
             <section aria-label="Lesson player" className="space-y-4">
               <LessonPlayer lesson={selectedLesson} />
-              <Card>
+              <Card light>
                 <CardContent>
                   {selectedLesson ? (
                     <>
                       <div className="flex flex-wrap items-center justify-between gap-3">
-                        <h2 className="font-display text-lg font-medium text-white">
+                        <h2 className="font-display text-lg font-semibold text-[#0b1c3a]">
                           {selectedLesson.title}
                         </h2>
                         <div className="flex flex-wrap items-center gap-2">
                           {selectedLesson.isCompleted ? (
-                            <Badge tone="success" dot>
+                            <Badge tone="success" dot light>
                               Completed
                             </Badge>
                           ) : null}
                           {formatDuration(selectedLesson.durationMinutes) ? (
-                            <Badge tone="neutral">
+                            <Badge tone="neutral" light>
                               {formatDuration(selectedLesson.durationMinutes)}
                             </Badge>
                           ) : null}
                         </div>
                       </div>
                       {selectedLesson.description ? (
-                        <p className="mt-2 text-sm leading-6 text-mist-400">
+                        <p className="mt-2 text-sm leading-6 text-[#526782]">
                           {selectedLesson.description}
                         </p>
                       ) : null}
 
                       {selectedLesson.isUnlocked ? (
-                        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-ink-800 pt-4">
+                        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-[#e1e9f2] pt-4">
                           <Button
                             variant={selectedLesson.isCompleted ? "secondary" : "primary"}
                             size="sm"
@@ -375,18 +377,19 @@ export default function StudentCourseDetail() {
                               selectedLesson.isCompleted ? Circle : CheckCircle2
                             }
                             onClick={() => handleToggleLesson(selectedLesson)}
+                            light
                           >
                             {selectedLesson.isCompleted
                               ? "Mark as not complete"
                               : "Mark lesson complete"}
                           </Button>
-                          <span className="text-xs text-mist-500">
+                          <span className="text-xs text-[#526782]">
                             Complete every lesson in a week to unlock its
                             assessment and the next week.
                           </span>
                         </div>
                       ) : (
-                        <p className="mt-4 inline-flex items-center gap-1.5 border-t border-ink-800 pt-3 text-xs text-mist-500">
+                        <p className="mt-4 inline-flex items-center gap-1.5 border-t border-[#e1e9f2] pt-3 text-xs text-[#526782]">
                           <Lock size={13} aria-hidden="true" />
                           This lesson is locked until the previous week is
                           complete.
@@ -394,7 +397,7 @@ export default function StudentCourseDetail() {
                       )}
                     </>
                   ) : (
-                    <p className="text-sm text-mist-400">
+                    <p className="text-sm text-[#526782]">
                       This course does not have any lessons yet.
                     </p>
                   )}
@@ -404,10 +407,10 @@ export default function StudentCourseDetail() {
 
             <aside aria-label="Course structure" className="space-y-3">
               <div>
-                <h2 className="font-display text-lg font-medium text-white">
+                <h2 className="font-display text-lg font-semibold text-[#0b1c3a]">
                   Course structure
                 </h2>
-                <p className="mt-1 text-xs text-mist-500">
+                <p className="mt-1 text-xs text-[#64748b]">
                   Weekly modules, assessments and assignments
                 </p>
               </div>
@@ -416,32 +419,33 @@ export default function StudentCourseDetail() {
                 course.modules.map((module) => (
                   <Card
                     key={module.id}
+                    light
                     className={module.isUnlocked ? undefined : "opacity-80"}
                   >
                     <CardContent className="p-4">
                       <div className="mb-3 flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-300">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#c27a00]">
                             Week {module.weekNumber}
                           </p>
-                          <h3 className="mt-1 font-medium text-white">
+                          <h3 className="mt-1 font-medium text-[#0b1c3a]">
                             {module.title}
                           </h3>
                           {module.description ? (
-                            <p className="mt-1 text-xs leading-5 text-mist-500">
+                            <p className="mt-1 text-xs leading-5 text-[#526782]">
                               {module.description}
                             </p>
                           ) : null}
                         </div>
                         {module.isCompleted ? (
-                          <Badge tone="success">Complete</Badge>
+                          <Badge tone="success" light>Complete</Badge>
                         ) : !module.isUnlocked ? (
-                          <Badge tone="neutral">
+                          <Badge tone="neutral" light>
                             <Lock size={11} aria-hidden="true" />
                             Locked
                           </Badge>
                         ) : (
-                          <Badge tone="brand">{module.progressPercent}%</Badge>
+                          <Badge tone="brand" light>{module.progressPercent}%</Badge>
                         )}
                       </div>
 
@@ -460,6 +464,7 @@ export default function StudentCourseDetail() {
                                   className="justify-start"
                                   aria-pressed={selected}
                                   disabled={locked}
+                                  light
                                   onClick={() =>
                                     setSelectedLessonId(lesson.id)
                                   }
@@ -469,7 +474,7 @@ export default function StudentCourseDetail() {
                                   ) : lesson.isCompleted ? (
                                     <CheckCircle2
                                       size={13}
-                                      className="text-emerald-300"
+                                      className="text-emerald-700"
                                       aria-hidden="true"
                                     />
                                   ) : (
@@ -479,7 +484,7 @@ export default function StudentCourseDetail() {
                                     {lesson.title}
                                   </span>
                                   {formatDuration(lesson.durationMinutes) ? (
-                                    <span className="shrink-0 text-[10px] text-mist-500">
+                                    <span className="shrink-0 text-[10px] text-[#64748b]">
                                       {formatDuration(lesson.durationMinutes)}
                                     </span>
                                   ) : null}
@@ -489,14 +494,14 @@ export default function StudentCourseDetail() {
                           })}
                         </ul>
                       ) : (
-                        <p className="text-xs text-mist-500">
+                        <p className="text-xs text-[#64748b]">
                           Lessons will appear here when added.
                         </p>
                       )}
 
                       {module.assessments.length ? (
-                        <div className="mt-4 border-t border-ink-800 pt-3">
-                          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-mist-500">
+                        <div className="mt-4 border-t border-[#e1e9f2] pt-3">
+                          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#64748b]">
                             Assessment
                           </p>
                           <ul className="space-y-1.5">
@@ -505,12 +510,12 @@ export default function StudentCourseDetail() {
                                 {assessment.isUnlocked ? (
                                   <Link
                                     to={`/student/assessments/${assessment.id}`}
-                                    className="flex items-center justify-between gap-2 rounded-lg border border-ink-800 px-3 py-2 text-xs text-mist-200 transition-colors hover:border-ink-600 hover:text-white"
+                                    className="flex items-center justify-between gap-2 rounded-lg border border-[#d6e0ed] bg-white px-3 py-2 text-xs text-[#334155] transition-colors hover:border-[#9bb7da] hover:bg-[#f4f8fd]"
                                   >
                                     <span className="inline-flex min-w-0 items-center gap-2">
                                       <ClipboardCheck
                                         size={14}
-                                        className="shrink-0 text-brand-300"
+                                        className="shrink-0 text-blue-600"
                                         aria-hidden="true"
                                       />
                                       <span className="truncate">
@@ -521,7 +526,7 @@ export default function StudentCourseDetail() {
                                       {assessment.passed ? (
                                         <CheckCircle2
                                           size={14}
-                                          className="text-emerald-300"
+                                          className="text-emerald-700"
                                           aria-label="Passed"
                                         />
                                       ) : (
@@ -533,7 +538,7 @@ export default function StudentCourseDetail() {
                                     </span>
                                   </Link>
                                 ) : (
-                                  <span className="flex items-center gap-2 rounded-lg border border-ink-800 px-3 py-2 text-xs text-mist-500">
+                                  <span className="flex items-center gap-2 rounded-lg border border-[#d6e0ed] bg-[#f7f9fc] px-3 py-2 text-xs text-[#64748b]">
                                     <Lock size={13} aria-hidden="true" />
                                     <span className="truncate">
                                       {assessment.title}
@@ -547,8 +552,8 @@ export default function StudentCourseDetail() {
                       ) : null}
 
                       {module.assignments.length ? (
-                        <div className="mt-4 border-t border-ink-800 pt-3">
-                          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-mist-500">
+                        <div className="mt-4 border-t border-[#e1e9f2] pt-3">
+                          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#64748b]">
                             Assignment
                           </p>
                           <ul className="space-y-1.5">
@@ -557,12 +562,12 @@ export default function StudentCourseDetail() {
                                 {assignment.isUnlocked ? (
                                   <Link
                                     to={`/student/assignments/${assignment.id}`}
-                                    className="flex items-center justify-between gap-2 rounded-lg border border-ink-800 px-3 py-2 text-xs text-mist-200 transition-colors hover:border-ink-600 hover:text-white"
+                                    className="flex items-center justify-between gap-2 rounded-lg border border-[#d6e0ed] bg-white px-3 py-2 text-xs text-[#334155] transition-colors hover:border-[#9bb7da] hover:bg-[#f4f8fd]"
                                   >
                                     <span className="inline-flex min-w-0 items-center gap-2">
                                       <ClipboardList
                                         size={14}
-                                        className="shrink-0 text-cyan-300"
+                                        className="shrink-0 text-cyan-700"
                                         aria-hidden="true"
                                       />
                                       <span className="truncate">
@@ -573,7 +578,7 @@ export default function StudentCourseDetail() {
                                       {assignment.isCompleted ? (
                                         <CheckCircle2
                                           size={14}
-                                          className="text-emerald-300"
+                                          className="text-emerald-700"
                                           aria-label="Submitted"
                                         />
                                       ) : (
@@ -585,7 +590,7 @@ export default function StudentCourseDetail() {
                                     </span>
                                   </Link>
                                 ) : (
-                                  <span className="flex items-center gap-2 rounded-lg border border-ink-800 px-3 py-2 text-xs text-mist-500">
+                                  <span className="flex items-center gap-2 rounded-lg border border-[#d6e0ed] bg-[#f7f9fc] px-3 py-2 text-xs text-[#64748b]">
                                     <Lock size={13} aria-hidden="true" />
                                     <span className="truncate">
                                       {assignment.title}
@@ -605,6 +610,7 @@ export default function StudentCourseDetail() {
                   icon={BookOpen}
                   title="No modules yet"
                   description="Weekly modules will appear here when added to the course."
+                  light
                   className="py-8"
                 />
               )}

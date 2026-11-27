@@ -207,6 +207,14 @@
       linear-gradient(180deg, #061a33 0%, #04101f 42%, #030c18 100%);
   }
 
+  .student-image-background {
+    background-image: url("/login-background.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+  }
+
   /* Glass panel using the same navy gradient and rim as the login card. */
   .app-panel {
     background:
@@ -418,6 +426,100 @@
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+}
+
+.staff-workspace {
+  color-scheme: light;
+  --color-ink-950: #f3f7fd;
+  --color-ink-900: #ffffff;
+  --color-ink-850: #f8fbff;
+  --color-ink-800: #eef3fa;
+  --color-ink-700: #d6e0ed;
+  --color-ink-600: #b8cdea;
+  --color-mist-50: #0b1c3a;
+  --color-mist-100: #1f3550;
+  --color-mist-200: #334155;
+  --color-mist-300: #526782;
+  --color-mist-400: #64748b;
+  --color-mist-500: #7b8da6;
+  --color-brand-100: #eff6ff;
+  --color-brand-200: #dbeafe;
+  --color-brand-300: #2563eb;
+  --color-brand-400: #1d4ed8;
+  --color-brand-500: #1d4ed8;
+  --color-brand-600: #1e40af;
+  --color-brand-700: #1e3a8a;
+  --color-cyan-300: #0e7490;
+  --color-emerald-300: #168044;
+  --color-amber-200: #a56600;
+  --color-rose-200: #b42332;
+  --color-rose-300: #b42332;
+  min-height: 100vh;
+  background-color: #f3f7fd;
+  color: #0b1c3a;
+}
+
+.staff-workspace .app-panel {
+  background: #ffffff;
+  border: 1px solid #d6e0ed;
+  box-shadow: 0 8px 24px rgb(15 42 80 / 0.07);
+  backdrop-filter: none;
+}
+
+.staff-workspace :is(h1, h2, h3, h4, h5, h6, p).text-white {
+  color: #0b1c3a;
+}
+
+.staff-workspace button[class~="border-brand-500"][class~="text-white"] {
+  color: #1d4ed8;
+}
+
+.staff-workspace input:not([type="checkbox"]):not([type="radio"]),
+.staff-workspace select,
+.staff-workspace textarea {
+  border-color: #cbd7e5;
+  background-color: #ffffff;
+  color: #0b1c3a;
+}
+
+.staff-workspace input::placeholder,
+.staff-workspace textarea::placeholder {
+  color: #94a3b8;
+}
+
+.staff-workspace select option {
+  background-color: #ffffff;
+  color: #0b1c3a;
+}
+
+.staff-workspace [class~="hover:text-white"]:hover {
+  color: #0b1c3a;
+}
+
+@media (min-width: 1280px) and (max-height: 700px) {
+  .auth-showcase-layout {
+    padding-block: 0.75rem;
+  }
+
+  .auth-showcase-story {
+    padding-bottom: 1.5rem;
+  }
+
+  .auth-showcase-story-content {
+    margin-top: 1.5rem;
+  }
+
+  .auth-showcase-highlights {
+    margin-top: 1rem;
+  }
+
+  .auth-showcase-highlights > :not(:first-child) {
+    margin-block-start: 0.75rem;
+  }
+
+  .auth-showcase-stats {
+    margin-top: 2rem;
   }
 
   *,

@@ -16,6 +16,10 @@ import {
   findLessonInModules,
   getCourseProgress,
 } from "../services/progress.service.js";
+import {
+  signLessonVideo,
+  signModuleVideos,
+} from "../services/mediaDelivery.service.js";
 
 export const getMyProgress = asyncHandler(async (req, res) => {
   const enrolledCourses = await listEnrolledCoursesForStudent(req.user.id);
@@ -70,7 +74,11 @@ export const getCourseProgressDetails = asyncHandler(async (req, res) => {
     );
   }
 
-  const { modules, summary } = await getCourseProgress(courseId, req.user.id);
+  const { modules: courseModules, summary } = await getCourseProgress(
+    courseId,
+    req.user.id
+  );
+  const modules = await signModuleVideos(courseModules);
 
   res.status(200).json({
     success: true,
@@ -121,7 +129,11 @@ export const getCourseModules = asyncHandler(async (req, res) => {
     );
   }
 
-  const { modules, summary } = await getCourseProgress(courseId, req.user.id);
+  const { modules: courseModules, summary } = await getCourseProgress(
+    courseId,
+    req.user.id
+  );
+  const modules = await signModuleVideos(courseModules);
 
   res.status(200).json({
     success: true,
@@ -167,10 +179,15 @@ export const getModuleDetails = asyncHandler(async (req, res) => {
     throw ApiError.notFound("This module could not be found.");
   }
 
+  const moduleWithVideos = {
+    ...module,
+    lessons: await Promise.all(module.lessons.map(signLessonVideo)),
+  };
+
   res.status(200).json({
     success: true,
     message: "Module details",
-    data: { module },
+    data: { module: moduleWithVideos },
   });
 });
 
@@ -180,12 +197,13 @@ export const getLessonDetails = asyncHandler(async (req, res) => {
     req.user.id,
     lessonId
   );
+  const lessonWithVideo = await signLessonVideo(lesson);
 
   res.status(200).json({
     success: true,
     message: "Lesson details",
     data: {
-      lesson,
+      lesson: lessonWithVideo,
       module: {
         id: module.id,
         title: module.title,

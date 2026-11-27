@@ -23,6 +23,8 @@ export function SidebarContent({
   const navigate = useNavigate();
   const [signingOut, setSigningOut] = useState(false);
   const studentMenu = user?.role === "student";
+  const compactMenu =
+    studentMenu || user?.role === "admin" || user?.role === "trainer";
 
   async function handleLogout() {
     setSigningOut(true);
@@ -42,9 +44,9 @@ export function SidebarContent({
       <div
         className={cn(
           "flex items-center justify-between gap-3",
-          studentMenu ? "px-4" : "px-5",
-          studentMenu ? "h-16" : "h-[88px]",
-          studentMenu && "border-b border-[#2f5f92]/50"
+          compactMenu ? "px-4" : "px-5",
+          compactMenu ? "h-16" : "h-[88px]",
+          compactMenu && "border-b border-[#2f5f92]/50"
         )}
       >
         <Link
@@ -53,7 +55,7 @@ export function SidebarContent({
           aria-label="Kodewar LMS home"
           className="rounded-md"
         >
-          <BrandLogo compact={studentMenu} />
+          <BrandLogo compact={compactMenu} />
         </Link>
 
         {showClose ? (
@@ -76,7 +78,7 @@ export function SidebarContent({
         <p
           className={cn(
             "px-2 pb-2 font-semibold uppercase tracking-[0.18em] text-[#8ba7c7]",
-            studentMenu ? "text-[8px]" : "text-[10px]"
+            compactMenu ? "text-[8px]" : "text-[10px]"
           )}
         >
           Workspace
@@ -92,11 +94,11 @@ export function SidebarContent({
                 className={({ isActive }) =>
                   cn(
                     "flex items-center transition-colors duration-200",
-                    studentMenu
+                    compactMenu
                       ? "gap-2 rounded-lg px-2 py-1.5 text-xs font-medium"
                       : "gap-3 rounded-[10px] px-2.5 py-2.5 text-sm font-medium",
                     isActive
-                      ? studentMenu
+                      ? compactMenu
                         ? "border border-l-[3px] border-[#ffc21b] bg-white/[0.065] text-white shadow-[0_6px_18px_rgba(255,194,27,0.12)]"
                         : "border border-[#c9a646]/75 bg-white/[0.035] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                       : "border border-transparent text-mist-300 hover:bg-ink-800/70 hover:text-white"
@@ -108,12 +110,12 @@ export function SidebarContent({
                     <span
                       className={cn(
                         "flex shrink-0 items-center justify-center transition-colors",
-                        studentMenu ? "h-6 w-6" : "h-7 w-7",
+                        compactMenu ? "h-6 w-6" : "h-7 w-7",
                         isActive ? "text-white" : "text-mist-400"
                       )}
                     >
                       <item.icon
-                        size={studentMenu ? 16 : 18}
+                        size={compactMenu ? 16 : 18}
                         strokeWidth={1.85}
                         aria-hidden="true"
                       />
@@ -135,14 +137,14 @@ export function SidebarContent({
       <div
         className={cn(
           "border-t border-[#2f5f92]/40 p-4",
-          studentMenu && "border-t-0 p-3"
+          compactMenu && "border-t-0 p-3"
         )}
       >
         {user ? (
           <div
             className={cn(
               "rounded-xl border border-[#3a6ea8]/40 bg-ink-900/70 p-2",
-              studentMenu &&
+              compactMenu &&
                 "rounded-xl border-[#0789ec]/90 bg-[#03162d]/85 p-2"
             )}
           >
@@ -151,7 +153,7 @@ export function SidebarContent({
               onClick={onNavigate}
               className={cn(
                 "flex items-center gap-2.5 rounded-lg p-1.5 transition-colors hover:bg-ink-800/70",
-                studentMenu && "gap-2"
+                compactMenu && "gap-2"
               )}
             >
               <Avatar
@@ -159,14 +161,14 @@ export function SidebarContent({
                 size="sm"
                 className={cn(
                   "border-[#3a6ea8]/70 bg-[#0b3f7a] bg-none text-white",
-                  studentMenu && "border-[#50637a]/60 bg-[#344559]"
+                  compactMenu && "border-[#50637a]/60 bg-[#344559]"
                 )}
               />
               <div className="min-w-0 flex-1">
                 <p
                   className={cn(
                     "truncate text-xs font-semibold text-white",
-                    studentMenu && "student-profile-name text-xs"
+                    compactMenu && "student-profile-name text-xs"
                   )}
                 >
                   {user.fullName}
@@ -174,14 +176,14 @@ export function SidebarContent({
                 <p
                   className={cn(
                     "truncate text-[10px] text-mist-400",
-                    studentMenu && "text-[9px]"
+                    compactMenu && "text-[9px]"
                   )}
                 >
                   {roleLabel(user.role)}
                 </p>
               </div>
               <ChevronRight
-                size={studentMenu ? 16 : 15}
+                size={compactMenu ? 16 : 15}
                 className="shrink-0 text-mist-500"
                 aria-hidden="true"
               />
@@ -193,11 +195,11 @@ export function SidebarContent({
               disabled={signingOut}
               className={cn(
                 "mt-0.5 inline-flex w-full items-center justify-center gap-1.5 rounded-md py-1.5 text-[10px] font-medium text-mist-500 transition-colors hover:text-rose-200 disabled:opacity-50",
-                studentMenu &&
+                compactMenu &&
                   "mt-2 gap-1.5 border-t border-[#2f5f92]/50 rounded-none pt-2 text-xs text-mist-100 hover:text-white"
               )}
             >
-              <LogOut size={studentMenu ? 14 : 11} aria-hidden="true" />
+              <LogOut size={compactMenu ? 14 : 11} aria-hidden="true" />
               {signingOut ? "Leaving" : "Sign out"}
             </button>
           </div>
@@ -228,18 +230,26 @@ export function SidebarContent({
   );
 }
 
-export default function Sidebar({ navItems, variant = "dark", student = false }) {
+export default function Sidebar({
+  navItems,
+  variant = "dark",
+  student = false,
+  admin = false,
+  trainer = false,
+}) {
   const light = variant === "light";
 
   return (
     <aside
       className={cn(
         "sidebar-scene fixed inset-y-0 left-0 z-40 hidden overflow-hidden border-r border-[#2f5f92]/40 backdrop-blur-sm lg:block",
-        student && "student-overview-sidebar",
-        light ? "w-[220px]" : "w-[264px]"
+        (student || admin || trainer) && "student-overview-sidebar",
+        student || light || admin || trainer
+          ? "w-[220px]"
+          : "w-[264px]"
       )}
     >
-      {!student ? (
+      {!student && !admin && !trainer ? (
         <>
           <div
             className="pointer-events-none absolute -bottom-24 -left-20 h-72 w-80 rounded-full bg-[radial-gradient(circle,rgba(24,124,255,0.28),transparent_65%)] blur-2xl"

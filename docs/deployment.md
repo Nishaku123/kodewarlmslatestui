@@ -33,7 +33,10 @@ real values. The API refuses to start in production when these checks fail:
 | `DB_SSL` | `true` for TiDB Cloud |
 | `JWT_SECRET` | Long random value, at least 32 characters. Never reuse the development value. |
 | `JWT_EXPIRES_IN` | Session lifetime, for example `7d` |
-| `MAX_FILE_SIZE_MB` | Upload size limit for future attachment support |
+| `B2_APPLICATION_KEY_ID` / `B2_APPLICATION_KEY` | Bucket-scoped Backblaze application key; never use the master key |
+| `B2_BUCKET_NAME` / `B2_REGION` | B2 bucket and its S3 region |
+| `MAX_FILE_SIZE_MB` | Maximum course image size in MB (default `10`) |
+| `MAX_VIDEO_FILE_SIZE_MB` | Maximum lesson video size in MB (default `500`) |
 
 The auth cookie is `httpOnly`, `SameSite=Lax` and `secure` whenever
 `NODE_ENV=production`, so the public site must use HTTPS.
@@ -46,6 +49,30 @@ VITE_API_URL=https://api.example.com/api
 
 and configure CORS by setting the API's `CLIENT_URL` to the exact frontend
 origin.
+
+### Backblaze B2 media uploads
+
+Set the B2 values in `backend/.env` to enable course image and lesson video
+uploads. Create an application key restricted to the target bucket with
+read/write file access; never use or commit a Master Application Key. The
+bucket can remain private: the API generates six-hour signed download URLs for
+students enrolled in the course, and only returns video URLs for unlocked
+lessons. Course thumbnails are also served through signed URLs. The key must
+include read and write file access.
+
+Private access does not eliminate storage or download charges. Check Backblaze's
+current [B2 pricing](https://www.backblaze.com/cloud-storage/pricing) for free
+allowances and egress rates.
+
+Uploads pass through the API and use the operating system's temporary folder
+before being sent to B2. Videos are converted to H.264 MP4, capped at a 1280px
+long edge and optimized for web playback. The original is retained if
+compression would make it larger. Ensure the API host has enough temporary
+disk space for both the uploaded and compressed files, and configure any
+reverse proxy to accept requests larger than `MAX_VIDEO_FILE_SIZE_MB` and allow
+uploads to take up to 30 minutes. The backend bundles FFmpeg through
+`ffmpeg-static` (GPL-3.0-or-later); review its license terms when redistributing
+the backend or its deployment image.
 
 ## 2. Install, migrate and build
 
@@ -132,7 +159,10 @@ server {
     ssl_certificate     /etc/letsencrypt/live/lms.example.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/lms.example.com/privkey.pem;
 
-    client_max_body_size 12m;
+    client_max_body_size 510m;
+    client_body_timeout 900s;
+    proxy_read_timeout 900s;
+    proxy_send_timeout 900s;
 
     location / {
         proxy_pass         http://127.0.0.1:5000;

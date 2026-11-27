@@ -43,10 +43,10 @@ export default function AuthShowcaseLayout({
   footerMobileOnly = false,
 }) {
   return (
-    <div className="auth-scene relative flex min-h-screen items-center justify-center overflow-x-clip px-4 py-6 sm:px-6 lg:px-14">
+    <div className="auth-scene auth-showcase-layout relative flex min-h-screen items-center justify-center overflow-x-clip px-4 py-6 sm:px-6 lg:px-14">
       <div className="relative z-10 grid w-full max-w-[1240px] items-center gap-8 xl:grid-cols-[minmax(0,1.16fr)_minmax(0,0.84fr)] xl:gap-14">
         {/* Brand story */}
-        <section className="relative hidden pb-10 xl:block">
+        <section className="auth-showcase-story relative hidden pb-10 xl:block">
           <Link
             to="/"
             aria-label="Kodewar LMS home"
@@ -70,7 +70,7 @@ export default function AuthShowcaseLayout({
             </span>
           </Link>
 
-          <div className="relative mt-10">
+          <div className="auth-showcase-story-content relative mt-10">
             {/* Copy sits above the illustration and overlaps it slightly */}
             <div className="relative z-20 w-[60%] max-w-[380px] xl:-translate-x-8 2xl:-translate-x-16">
               <h1 className="w-[430px] max-w-[430px] font-display text-[40px] font-bold leading-[1.05] tracking-tight text-[#0b1c3a] xl:text-[44px]">
@@ -107,7 +107,7 @@ export default function AuthShowcaseLayout({
                 built to help you learn, practice, and grow.
               </p>
 
-              <ul className="mt-6 max-w-[330px] space-y-4">
+              <ul className="auth-showcase-highlights mt-6 max-w-[330px] space-y-4">
                 {HIGHLIGHTS.map(
                   ({ icon: Icon, title, description, iconStyle }) => (
                     <li key={title} className="flex items-center gap-3.5">
@@ -129,7 +129,7 @@ export default function AuthShowcaseLayout({
                 )}
               </ul>
 
-              <div className="-ml-3 mt-15 flex w-[350px] max-w-[calc(100vw-48px)] items-center text-[#06172e]">
+              <div className="auth-showcase-stats -ml-3 mt-15 flex w-[350px] max-w-[calc(100vw-48px)] items-center text-[#06172e]">
                 {STATS.map(({ icon: Icon, value, label }, index) => (
                   <div key={label} className="flex flex-1 items-center">
                     <div className="flex items-center gap-2">

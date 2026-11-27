@@ -114,11 +114,13 @@ export default function StudentAssignmentDetail() {
       title="Assignment"
       subtitle="Your Kodewar learning workspace"
       navItems={getNavigation(user.role)}
+            variant="light"
+
     >
       <div className="mb-5">
         <Link
           to="/student/assignments"
-          className={buttonClasses({ variant: "ghost", size: "sm" })}
+          className={buttonClasses({ variant: "ghost", size: "sm", light: true })}
         >
           <ArrowLeft size={14} aria-hidden="true" />
           Back to assignments
@@ -127,11 +129,11 @@ export default function StudentAssignmentDetail() {
 
       {loading ? (
         <div className="space-y-4">
-          <Skeleton className="h-32 rounded-xl" />
-          <Skeleton className="h-64 rounded-xl" />
+          <Skeleton className="h-32 rounded-xl bg-white" />
+          <Skeleton className="h-64 rounded-xl bg-white" />
         </div>
       ) : loadError ? (
-        <Alert tone="danger" title="Could not load assignment">
+        <Alert tone="danger" title="Could not load assignment" light>
           {loadError}
         </Alert>
       ) : assignment ? (
@@ -139,7 +141,7 @@ export default function StudentAssignmentDetail() {
           <PageHeader
             eyebrow={`Week ${assignment.module.weekNumber} · ${assignment.module.title}`}
             title={assignment.title}
-            description={assignment.description}
+            light
             actions={
               <Badge
                 tone={
@@ -152,6 +154,7 @@ export default function StudentAssignmentDetail() {
                         : "neutral"
                 }
                 dot
+                light
               >
                 {isGraded
                   ? "Graded"
@@ -164,7 +167,7 @@ export default function StudentAssignmentDetail() {
             }
           />
 
-          <div className="mb-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-mist-500">
+          <div className="mb-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[#526782]">
             <span>{assignment.maxPoints} points</span>
             {assignment.dueAt ? (
               <span className="inline-flex items-center gap-1.5">
@@ -176,11 +179,11 @@ export default function StudentAssignmentDetail() {
               <span>No due date</span>
             )}
             {assignment.isLate ? (
-              <Badge tone="warning">Submitted late</Badge>
+              <Badge tone="warning" light>Submitted late</Badge>
             ) : null}
             <Link
               to={`/student/courses/${assignment.course.id}`}
-              className="text-brand-300 underline-offset-4 hover:underline"
+              className="text-[#2563eb] underline-offset-4 hover:underline"
             >
               {assignment.course.title}
             </Link>
@@ -188,7 +191,7 @@ export default function StudentAssignmentDetail() {
 
           {isGraded ? (
             <div className="mb-5">
-              <Alert tone="success" title="This assignment has been graded">
+              <Alert tone="success" title="This assignment has been graded" light>
                 Score: {submission.score} of {assignment.maxPoints}. Graded{" "}
                 {formatDateTime(submission.gradedAt)}.
                 {submission.feedback ? ` Feedback: ${submission.feedback}` : ""}
@@ -197,11 +200,11 @@ export default function StudentAssignmentDetail() {
           ) : null}
 
           {!assignment.isUnlocked ? (
-            <Alert tone="warning" title="This assignment is locked">
+            <Alert tone="warning" title="This assignment is locked" light>
               Complete every lesson in the week before submitting. Open the{" "}
               <Link
                 to={`/student/courses/${assignment.course.id}`}
-                className="font-semibold underline underline-offset-2"
+                className="font-semibold text-[#2563eb] underline underline-offset-2"
               >
                 course
               </Link>{" "}
@@ -209,19 +212,30 @@ export default function StudentAssignmentDetail() {
             </Alert>
           ) : (
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)]">
-              <Card>
+              <Card light>
                 <CardHeader
                   title="Instructions"
                   description="Read the task before writing your submission"
+                  light
                 />
-                <CardContent>
-                  <p className="whitespace-pre-line text-sm leading-6 text-mist-300">
-                    {assignment.instructions}
+                <CardContent className="space-y-4">
+                  {assignment.description ? (
+                    <div className="rounded-lg border border-[#d6e0ed] bg-[#f7f9fc] p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#526782]">
+                        Question
+                      </p>
+                      <p className="mt-1 whitespace-pre-line text-sm leading-6 text-[#334155]">
+                        {assignment.description}
+                      </p>
+                    </div>
+                  ) : null}
+                  <p className="whitespace-pre-line text-sm leading-6 text-[#334155]">
+                    {assignment.instructions || "No instructions provided."}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card light>
                 <CardHeader
                   title={isGraded ? "Your graded submission" : "Your submission"}
                   description={
@@ -229,15 +243,16 @@ export default function StudentAssignmentDetail() {
                       ? "Graded work can no longer be changed"
                       : "Write your answer and optionally add a link"
                   }
+                  light
                 />
                 <CardContent>
                   {isGraded ? (
                     <div className="space-y-4">
                       <div>
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist-500">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#64748b]">
                           Answer
                         </p>
-                        <p className="mt-1 whitespace-pre-line text-sm leading-6 text-mist-200">
+                        <p className="mt-1 whitespace-pre-line text-sm leading-6 text-[#334155]">
                           {submission.content || "No written answer."}
                         </p>
                       </div>
@@ -246,26 +261,27 @@ export default function StudentAssignmentDetail() {
                           href={submission.submissionUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs text-brand-300 underline-offset-4 hover:underline"
+                          className="inline-flex items-center gap-1.5 text-xs text-[#2563eb] underline-offset-4 hover:underline"
                         >
                           Open submitted link
                           <ExternalLink size={12} aria-hidden="true" />
                         </a>
                       ) : null}
-                      <p className="border-t border-ink-800 pt-3 text-xs text-mist-500">
+                      <p className="border-t border-[#e1e9f2] pt-3 text-xs text-[#64748b]">
                         Submitted {formatDateTime(submission.submittedAt)}
                       </p>
                     </div>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-4">
                       {formError ? (
-                        <Alert tone="danger" title="Could not submit">
+                        <Alert tone="danger" title="Could not submit" light>
                           {formError}
                         </Alert>
                       ) : null}
 
                       <Textarea
                         label="Written answer"
+                        light
                         rows={7}
                         value={content}
                         maxLength={10000}
@@ -277,6 +293,7 @@ export default function StudentAssignmentDetail() {
                       <Input
                         label="Link (optional)"
                         type="url"
+                        light
                         value={submissionUrl}
                         onChange={(event) =>
                           setSubmissionUrl(event.target.value)
@@ -290,18 +307,19 @@ export default function StudentAssignmentDetail() {
                           type="submit"
                           icon={Send}
                           loading={submitting}
+                          light
                         >
                           {submission ? "Update submission" : "Submit assignment"}
                         </Button>
                         {submission ? (
-                          <span className="inline-flex items-center gap-1.5 text-xs text-emerald-300">
+                          <span className="inline-flex items-center gap-1.5 text-xs text-emerald-700">
                             <CheckCircle2 size={14} aria-hidden="true" />
                             Submitted {formatDateTime(submission.submittedAt)}
                           </span>
                         ) : null}
                       </div>
 
-                      <p className="text-xs leading-5 text-mist-500">
+                      <p className="text-xs leading-5 text-[#526782]">
                         You can update your submission until a trainer grades
                         it.
                       </p>

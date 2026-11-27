@@ -23,12 +23,23 @@ export default function Badge({
   dot = false,
   className,
   children,
+  light = false,
 }) {
+  const lightTones = {
+    neutral: "border-[#d5dfeb] bg-[#f3f7fc] text-[#526782]",
+    brand: "border-[#c5ddf7] bg-[#edf6ff] text-[#246fc2]",
+    success: "border-[#b9e5c7] bg-[#eaf8ef] text-[#168044]",
+    warning: "border-[#f2d59b] bg-[#fff7e8] text-[#a56600]",
+    danger: "border-[#f2c2c7] bg-[#fff0f1] text-[#b42332]",
+    info: "border-[#c5ddf7] bg-[#edf6ff] text-[#246fc2]",
+  };
+
   return (
     <span
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium",
-        tones[tone] || tones.neutral,
+        (light ? lightTones : tones)[tone] ||
+          (light ? lightTones : tones).neutral,
         className
       )}
     >

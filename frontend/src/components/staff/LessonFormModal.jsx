@@ -4,6 +4,7 @@ import Button from "../ui/Button.jsx";
 import Input from "../ui/Input.jsx";
 import Textarea from "../ui/Textarea.jsx";
 import Select from "../ui/Select.jsx";
+import MediaUploadButton from "./MediaUploadButton.jsx";
 import {
   createLessonRequest,
   updateLessonRequest,
@@ -15,7 +16,15 @@ const PROVIDERS = [
   { value: "youtube", label: "YouTube" },
   { value: "vimeo", label: "Vimeo" },
   { value: "direct", label: "Direct video URL" },
+  { value: "backblaze", label: "Upload to Backblaze B2" },
 ];
+
+function formatFileSize(bytes) {
+  const megabytes = bytes / (1024 * 1024);
+  return megabytes >= 1
+    ? `${megabytes.toFixed(1)} MB`
+    : `${Math.round(bytes / 1024)} KB`;
+}
 
 function initialForm(lesson) {
   return {
@@ -38,12 +47,15 @@ export default function LessonFormModal({
   const { toast } = useToast();
   const [form, setForm] = useState(() => initialForm(lesson));
   const [saving, setSaving] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [videoUploadNotice, setVideoUploadNotice] = useState("");
   const [error, setError] = useState("");
   const isEditing = Boolean(lesson);
 
   useEffect(() => {
     if (!open) return;
     setForm(initialForm(lesson));
+    setVideoUploadNotice("");
     setError("");
   }, [open, lesson]);
 
@@ -53,6 +65,12 @@ export default function LessonFormModal({
 
   async function handleSubmit(event) {
     event.preventDefault();
+
+    if (form.videoProvider === "backblaze" && !form.videoUrl) {
+      setError("Upload a video to Backblaze B2 before saving this lesson.");
+      return;
+    }
+
     setSaving(true);
     setError("");
 
@@ -96,10 +114,19 @@ export default function LessonFormModal({
       size="lg"
       footer={
         <>
-          <Button variant="secondary" onClick={onClose} disabled={saving}>
+          <Button
+            variant="secondary"
+            onClick={onClose}
+            disabled={saving || uploadingMedia}
+          >
             Cancel
           </Button>
-          <Button type="submit" form="lesson-form" loading={saving}>
+          <Button
+            type="submit"
+            form="lesson-form"
+            loading={saving}
+            disabled={uploadingMedia}
+          >
             {isEditing ? "Save changes" : "Create lesson"}
           </Button>
         </>
@@ -157,22 +184,68 @@ export default function LessonFormModal({
           <Select
             label="Video provider"
             value={form.videoProvider}
-            onChange={(event) => update("videoProvider", event.target.value)}
+            disabled={saving || uploadingMedia}
+            onChange={(event) => {
+              const provider = event.target.value;
+              setVideoUploadNotice("");
+              if (
+                provider !== form.videoProvider &&
+                (provider === "backblaze" || form.videoProvider === "backblaze")
+              ) {
+                update("videoUrl", "");
+              }
+              update("videoProvider", provider);
+            }}
             options={PROVIDERS}
           />
-          <Input
-            label="Video URL"
-            type="url"
-            value={form.videoUrl}
-            onChange={(event) => update("videoUrl", event.target.value)}
-            placeholder="https://..."
-            disabled={!form.videoProvider}
-            hint={
-              form.videoProvider
-                ? "Required for the selected provider."
-                : "Choose a provider to attach a video."
-            }
-          />
+          {form.videoProvider === "backblaze" ? (
+            <div className="space-y-2">
+              <Input
+                label="Uploaded video"
+                value={form.videoUrl}
+                placeholder="Upload a video to Backblaze B2"
+                readOnly
+                disabled={!form.videoUrl}
+              />
+              <MediaUploadButton
+                kind="video"
+                accept="video/mp4,video/webm,video/quicktime"
+                label={form.videoUrl ? "Replace video" : "Upload video"}
+                disabled={saving}
+                onUploaded={(asset) => {
+                  update("videoUrl", asset.url);
+                  setVideoUploadNotice(
+                    asset.compressed
+                      ? `Optimized from ${formatFileSize(asset.originalSize)} to ${formatFileSize(asset.size)}.`
+                      : `Original kept at ${formatFileSize(asset.size)}; compression would not reduce its size.`
+                  );
+                  setError("");
+                }}
+                onError={setError}
+                onUploadingChange={setUploadingMedia}
+              />
+              <p className="text-xs text-mist-500">
+                Videos are converted to a smaller, web-ready MP4 before they are stored in Backblaze B2.
+              </p>
+              {videoUploadNotice ? (
+                <p className="text-xs text-emerald-300">{videoUploadNotice}</p>
+              ) : null}
+            </div>
+          ) : (
+            <Input
+              label="Video URL"
+              type="url"
+              value={form.videoUrl}
+              onChange={(event) => update("videoUrl", event.target.value)}
+              placeholder="https://..."
+              disabled={!form.videoProvider}
+              hint={
+                form.videoProvider
+                  ? "Required for the selected provider."
+                  : "Choose a provider to attach a video."
+              }
+            />
+          )}
         </div>
       </form>
     </Modal>

@@ -1,8 +1,11 @@
+import { createServer } from "node:http";
 import { app } from "./app.js";
 import { env } from "./config/env.js";
 import { closePool } from "./config/db.js";
 
-const server = app.listen(env.port, () => {
+const server = createServer({ requestTimeout: 15 * 60 * 1000 }, app);
+
+server.listen(env.port, () => {
   console.log("");
   console.log("  KODEWAR LMS API");
   console.log(`  Running at:  http://localhost:${env.port}`);

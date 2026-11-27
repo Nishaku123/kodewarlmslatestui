@@ -4,6 +4,7 @@ import Button from "../ui/Button.jsx";
 import Input from "../ui/Input.jsx";
 import Textarea from "../ui/Textarea.jsx";
 import Select from "../ui/Select.jsx";
+import MediaUploadButton from "./MediaUploadButton.jsx";
 import {
   createManagedCourseRequest,
   updateManagedCourseRequest,
@@ -43,12 +44,15 @@ export default function CourseFormModal({ open, course, onClose, onSaved }) {
   const { toast } = useToast();
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [thumbnailPreviewUrl, setThumbnailPreviewUrl] = useState("");
   const [error, setError] = useState("");
   const isEditing = Boolean(course);
 
   useEffect(() => {
     if (!open) return;
     setForm(course ? formFromCourse(course) : emptyForm());
+    setThumbnailPreviewUrl(course?.thumbnailPreviewUrl || "");
     setError("");
   }, [open, course]);
 
@@ -101,19 +105,28 @@ export default function CourseFormModal({ open, course, onClose, onSaved }) {
           ? "Changes are visible to students as soon as the course is published."
           : "New courses start as drafts. Add modules and lessons, then publish."
       }
-      size="lg"
+      size="md"
       footer={
         <>
-          <Button variant="secondary" onClick={onClose} disabled={saving}>
+          <Button
+            variant="secondary"
+            onClick={onClose}
+            disabled={saving || uploadingMedia}
+          >
             Cancel
           </Button>
-          <Button type="submit" form="course-form" loading={saving}>
+          <Button
+            type="submit"
+            form="course-form"
+            loading={saving}
+            disabled={uploadingMedia}
+          >
             {isEditing ? "Save changes" : "Create course"}
           </Button>
         </>
       }
     >
-      <form id="course-form" className="space-y-4" onSubmit={handleSubmit}>
+      <form id="course-form" className="space-y-2" onSubmit={handleSubmit}>
         {error ? (
           <div
             role="alert"
@@ -123,25 +136,15 @@ export default function CourseFormModal({ open, course, onClose, onSaved }) {
           </div>
         ) : null}
 
-        <Input
-          label="Title"
-          required
-          value={form.title}
-          onChange={(event) => update("title", event.target.value)}
-          placeholder="e.g. JavaScript Foundations"
-          maxLength={180}
-        />
-
-        <Textarea
-          label="Description"
-          rows={4}
-          value={form.description}
-          onChange={(event) => update("description", event.target.value)}
-          placeholder="What will students learn in this course?"
-          maxLength={5000}
-        />
-
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Input
+            label="Title"
+            required
+            value={form.title}
+            onChange={(event) => update("title", event.target.value)}
+            placeholder="e.g. JavaScript Foundations"
+            maxLength={180}
+          />
           <Input
             label="Category"
             value={form.category}
@@ -149,15 +152,24 @@ export default function CourseFormModal({ open, course, onClose, onSaved }) {
             placeholder="Web Development"
             maxLength={80}
           />
+        </div>
+
+        <Textarea
+          label="Description"
+          rows={2}
+          value={form.description}
+          onChange={(event) => update("description", event.target.value)}
+          placeholder="What will students learn in this course?"
+          maxLength={5000}
+        />
+
+        <div className="grid gap-3 sm:grid-cols-2">
           <Select
             label="Level"
             value={form.level}
             onChange={(event) => update("level", event.target.value)}
             options={LEVELS.map((level) => ({ value: level, label: level }))}
           />
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
           <Input
             label="Duration (minutes)"
             type="number"
@@ -166,20 +178,49 @@ export default function CourseFormModal({ open, course, onClose, onSaved }) {
             value={form.durationMinutes}
             onChange={(event) => update("durationMinutes", event.target.value)}
           />
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Input
+              label="Thumbnail URL"
+              type="url"
+              value={form.thumbnailUrl}
+              onChange={(event) => {
+                update("thumbnailUrl", event.target.value);
+                setThumbnailPreviewUrl("");
+              }}
+              placeholder="https://..."
+              hint="Optional. Must use https://."
+            />
+            <MediaUploadButton
+              kind="image"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              label="Upload image"
+              disabled={saving}
+              onUploaded={(asset) => {
+                update("thumbnailUrl", asset.url);
+                setThumbnailPreviewUrl(asset.previewUrl || asset.url);
+                setError("");
+              }}
+              onError={setError}
+              onUploadingChange={setUploadingMedia}
+            />
+          </div>
           <Input
-            label="Thumbnail URL"
-            type="url"
-            value={form.thumbnailUrl}
-            onChange={(event) => update("thumbnailUrl", event.target.value)}
-            placeholder="https://..."
-            hint="Optional. Must use https://."
+            label="Slug"
+            value={form.slug}
+            onChange={(event) => update("slug", event.target.value)}
+            placeholder="javascript-foundations"
+            hint="Optional. Generated from the title when left blank."
+            maxLength={120}
           />
         </div>
 
         {form.thumbnailUrl ? (
           <div className="overflow-hidden rounded-lg border border-ink-700 bg-ink-950/40">
             <img
-              src={form.thumbnailUrl}
+              src={thumbnailPreviewUrl || form.thumbnailUrl}
               alt="Course thumbnail preview"
               className="h-36 w-full object-cover"
               onError={(event) => {
@@ -191,15 +232,6 @@ export default function CourseFormModal({ open, course, onClose, onSaved }) {
             </p>
           </div>
         ) : null}
-
-        <Input
-          label="Slug"
-          value={form.slug}
-          onChange={(event) => update("slug", event.target.value)}
-          placeholder="javascript-foundations"
-          hint="Optional. Generated from the title when left blank."
-          maxLength={120}
-        />
       </form>
     </Modal>
   );

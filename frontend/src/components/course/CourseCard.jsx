@@ -40,14 +40,15 @@ export default function CourseCard({
   return (
     <Card
       className={cn(
-        "group flex h-full flex-col overflow-hidden transition-colors duration-200 hover:border-ink-600",
-        light &&
-          "border-[#d8e6f8] bg-none bg-white/90 shadow-[0_12px_28px_rgba(15,42,80,0.12)]"
+        "group flex h-full flex-col overflow-hidden transition duration-200",
+        light
+          ? "border-[#d8e6f8] bg-none bg-white/95 shadow-[0_12px_28px_rgba(15,42,80,0.12)] hover:-translate-y-1 hover:border-[#9bb7da] hover:shadow-[0_18px_36px_rgba(15,42,80,0.16)]"
+          : "hover:border-ink-600"
       )}
     >
       <div
         className={cn(
-          "relative flex h-36 items-end overflow-hidden bg-gradient-to-br from-brand-600/25 via-ink-800 to-cyan-500/10 p-4",
+          "relative flex h-40 items-end overflow-hidden bg-gradient-to-br from-brand-600/25 via-ink-800 to-cyan-500/10 p-4",
           light && "bg-gradient-to-br from-[#dcecff] via-[#a9cfff] to-[#0b3b80]"
         )}
       >
@@ -75,10 +76,11 @@ export default function CourseCard({
         )}
 
         <div className="relative flex w-full items-center justify-between gap-2">
-          <Badge tone="brand">{category}</Badge>
+          <Badge tone="brand" light={light}>{category}</Badge>
           <Badge
             tone={statusTones[isEnrolled ? status : "Available"] || "neutral"}
             dot
+            light={light}
           >
             {isEnrolled ? status : "Available"}
           </Badge>
@@ -88,7 +90,7 @@ export default function CourseCard({
       <div className="flex flex-1 flex-col p-5">
         <h3
           className={cn(
-            "font-display text-base font-medium text-white",
+            "line-clamp-1 font-display text-base font-semibold text-white",
             light && "font-semibold text-[#0b1c3a]"
           )}
         >
@@ -130,6 +132,7 @@ export default function CourseCard({
             value={progress}
             label="Course progress"
             className="mt-5"
+            light={light}
           />
         ) : null}
 
@@ -140,6 +143,7 @@ export default function CourseCard({
             loading={actionLoading}
             icon={isEnrolled ? PlayCircle : PlusCircle}
             disabled={actionDisabled}
+            light={light}
             onClick={() =>
               isEnrolled ? onContinue?.(course) : onEnroll?.(course)
             }

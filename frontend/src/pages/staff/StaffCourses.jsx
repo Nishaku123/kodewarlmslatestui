@@ -226,7 +226,7 @@ export default function StaffCourses() {
         <div className="grid gap-4 lg:grid-cols-2">
           {courses.map((course) => (
             <Card key={course.id} className="flex flex-col">
-              <CardContent className="flex flex-1 flex-col p-5">
+              <CardContent className="flex flex-1 flex-col p-5 sm:p-6">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge tone={course.isPublished ? "success" : "warning"} dot>
                     {course.isPublished ? "Published" : "Draft"}
@@ -263,7 +263,7 @@ export default function StaffCourses() {
                   />
                 </div>
 
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
                   <Link
                     to={`/staff/courses/${course.id}`}
                     className={buttonClasses({ variant: "primary", size: "sm" })}

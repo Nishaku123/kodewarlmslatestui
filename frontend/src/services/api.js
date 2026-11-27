@@ -54,9 +54,13 @@ function gatewayMessage(status) {
  * Runs one fetch attempt with a timeout and converts every failure into an
  * ApiError with a message the UI can display.
  */
-async function requestOnce(url, { method, headers, body, signal }) {
+async function requestOnce(
+  url,
+  { method, headers, body, signal, timeoutMs = REQUEST_TIMEOUT_MS }
+) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
 
   // Respect a caller-provided signal (for example when a page unmounts).
   const abortFromCaller = () => controller.abort();
@@ -77,8 +81,9 @@ async function requestOnce(url, { method, headers, body, signal }) {
       headers: {
         Accept: "application/json",
         // Only send a content type when there is actually a body. GET and
-        // HEAD requests do not need it and some proxies reject them.
-        ...(body ? { "Content-Type": "application/json" } : {}),
+        // HEAD requests do not need it and some proxies reject them. Let the
+        // browser set the multipart boundary for FormData requests.
+        ...(body && !isFormData ? { "Content-Type": "application/json" } : {}),
         ...headers,
       },
     });
@@ -123,7 +128,13 @@ async function requestOnce(url, { method, headers, body, signal }) {
 }
 
 export async function apiRequest(path, options = {}) {
-  const { headers, signal, ...rest } = options;
+  const {
+    headers,
+    signal,
+    retry = true,
+    timeoutMs = REQUEST_TIMEOUT_MS,
+    ...rest
+  } = options;
   const method = (rest.method || "GET").toUpperCase();
   const url = `${API_BASE_URL}${path}`;
   const body = rest.body;
@@ -139,6 +150,7 @@ export async function apiRequest(path, options = {}) {
         headers,
         body,
         signal,
+        timeoutMs,
       });
     } catch (error) {
       const isTransient =
@@ -146,7 +158,7 @@ export async function apiRequest(path, options = {}) {
         error.code === "TIMEOUT" ||
         RETRYABLE_STATUSES.has(error.status);
 
-      const hasRetryLeft = attempt < RETRY_DELAYS_MS.length;
+      const hasRetryLeft = retry && attempt < RETRY_DELAYS_MS.length;
 
       if (!isTransient || !hasRetryLeft || signal?.aborted) {
         throw error;

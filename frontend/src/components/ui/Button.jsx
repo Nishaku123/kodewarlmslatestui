@@ -13,6 +13,15 @@ const variantClasses = {
   danger: "bg-rose-500 text-white hover:bg-rose-400 active:bg-rose-600",
 };
 
+const lightVariantClasses = {
+  primary:
+    "bg-[#2563eb] text-white shadow-[0_6px_16px_rgba(37,99,235,0.2)] hover:bg-[#1d4ed8] active:bg-[#1e40af]",
+  secondary:
+    "border border-[#cbd7e5] bg-white text-[#243957] shadow-sm hover:border-[#9bb7da] hover:bg-[#f4f8fd]",
+  ghost: "text-[#2f6fca] hover:bg-[#edf4fc] hover:text-[#1d4ed8]",
+  danger: "bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800",
+};
+
 const sizeClasses = {
   sm: "h-8 px-3 text-xs",
   md: "h-10 px-4 text-sm",
@@ -34,10 +43,12 @@ export function buttonClasses({
   size = "md",
   fullWidth = false,
   className = "",
+  light = false,
 } = {}) {
   return cn(
     baseClasses,
-    variantClasses[variant] || variantClasses.primary,
+    (light ? lightVariantClasses : variantClasses)[variant] ||
+      (light ? lightVariantClasses : variantClasses).primary,
     sizeClasses[size] || sizeClasses.md,
     fullWidth && "w-full",
     className
@@ -57,6 +68,7 @@ export default function Button({
   iconRight: IconRight,
   className,
   children,
+  light = false,
   disabled = false,
   type = "button",
   ...props
@@ -66,7 +78,7 @@ export default function Button({
   return (
     <button
       type={type}
-      className={buttonClasses({ variant, size, fullWidth, className })}
+      className={buttonClasses({ variant, size, fullWidth, className, light })}
       disabled={disabled || loading}
       {...props}
     >

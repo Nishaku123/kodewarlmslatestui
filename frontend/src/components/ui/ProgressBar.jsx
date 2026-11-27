@@ -18,6 +18,7 @@ export default function ProgressBar({
   size = "md",
   tone = "brand",
   className,
+  light = false,
 }) {
   const safeValue = Math.min(100, Math.max(0, Number(value) || 0));
 
@@ -25,9 +26,15 @@ export default function ProgressBar({
     <div className={cn("w-full", className)}>
       {label || showValue ? (
         <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
-          {label ? <span className="text-mist-400">{label}</span> : <span />}
+          {label ? (
+            <span className={light ? "text-[#526782]" : "text-mist-400"}>
+              {label}
+            </span>
+          ) : (
+            <span />
+          )}
           {showValue ? (
-            <span className="font-medium text-mist-200">
+            <span className={`font-medium ${light ? "text-[#334155]" : "text-mist-200"}`}>
               {Math.round(safeValue)}%
             </span>
           ) : null}
@@ -36,7 +43,9 @@ export default function ProgressBar({
 
       <div
         className={cn(
-          "w-full overflow-hidden rounded-full bg-ink-800",
+          `w-full overflow-hidden rounded-full ${
+            light ? "bg-[#e2e8f0]" : "bg-ink-800"
+          }`,
           heights[size] || heights.md
         )}
         role="progressbar"

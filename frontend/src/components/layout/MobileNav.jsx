@@ -11,6 +11,8 @@ export default function MobileNav({
   onClose,
   navItems,
   student = false,
+  admin = false,
+  trainer = false,
 }) {
   const closeButtonRef = useRef(null);
   const panelRef = useRef(null);
@@ -75,9 +77,13 @@ export default function MobileNav({
         role="dialog"
         aria-modal="true"
         aria-label="Navigation"
-        className={`sidebar-scene animate-slide-in absolute inset-y-0 left-0 w-[280px] max-w-[85vw] overflow-hidden border-r border-[#2f5f92]/40 shadow-2xl shadow-black/50 ${
-          student ? "student-overview-sidebar" : ""
-        } ${student ? "student-font-poppins" : ""}`}
+        className={`sidebar-scene animate-slide-in absolute inset-y-0 left-0 ${
+          admin || trainer ? "w-[220px]" : "w-[280px]"
+        } max-w-[85vw] overflow-hidden border-r border-[#2f5f92]/40 shadow-2xl shadow-black/50 ${
+          student || admin || trainer ? "student-overview-sidebar" : ""
+        } ${
+          student ? "student-font-poppins" : ""
+        }`}
       >
         <SidebarContent
           navItems={navItems}

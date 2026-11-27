@@ -11,6 +11,7 @@ import {
   Send,
 } from "lucide-react";
 import DashboardLayout from "../../layouts/DashboardLayout.jsx";
+import StudentPageTitle from "../../components/layout/StudentPageTitle.jsx";
 import EmptyState from "../../components/ui/EmptyState.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { getNavigation } from "../../config/navigation.js";
@@ -99,47 +100,47 @@ function StatusBadge({ status }) {
   );
 }
 
-function AssignmentStatCard({ title, count, description, icon: Icon }) {
+function AssignmentStatCard({
+  title,
+  count,
+  description,
+  icon: Icon,
+  tone,
+}) {
+  const tones = {
+    blue: {
+      border: "border-l-blue-600",
+      icon: "bg-blue-50 text-blue-700",
+    },
+    green: {
+      border: "border-l-emerald-600",
+      icon: "bg-emerald-50 text-emerald-700",
+    },
+    amber: {
+      border: "border-l-amber-500",
+      icon: "bg-amber-50 text-amber-700",
+    },
+    slate: {
+      border: "border-l-slate-400",
+      icon: "bg-slate-100 text-slate-600",
+    },
+  };
+  const style = tones[tone] || tones.blue;
+
   return (
-    <article className="relative isolate flex h-[128px] w-full flex-col justify-between overflow-hidden rounded-[20px] border border-[#168bff]/80 bg-gradient-to-br from-[#0b4da0] via-[#07377f] to-[#031b50] px-4 py-3 shadow-[0_8px_24px_rgba(0,89,255,0.24)]">
-      <svg
-        className="pointer-events-none absolute bottom-0 right-0 z-0 h-20 w-48 text-[#00aaff]"
-        viewBox="0 0 200 96"
-        fill="none"
-        aria-hidden="true"
-      >
-        <path
-          d="M-8 108C42 105 83 105 118 96C152 86 178 65 208 12"
-          stroke="currentColor"
-          strokeWidth="8"
-          strokeLinecap="round"
-          opacity="0.32"
-        />
-        <path
-          d="M-8 108C42 105 83 105 118 96C152 86 178 65 208 12"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-      </svg>
-
-      <div className="relative z-10 flex min-h-14 items-center gap-3">
-        <span
-          className="flex h-[35px] w-[35px] shrink-0 items-center justify-center rounded-[10px] border-2 border-[#ffbf00] bg-gradient-to-br from-[#25364e] to-[#0b1c37] text-[#ffbf00]"
-        >
-          <Icon size={20} strokeWidth={2.2} aria-hidden="true" />
-        </span>
-        <div className="min-w-0">
-          <p className="truncate text-base !font-semibold leading-5 text-white">{title}</p>
-          <p className="mt-0.5 font-display text-[36px] !font-bold leading-9 tracking-tight text-white">
-            {count}
-          </p>
-        </div>
+    <article
+      className={`flex min-h-[96px] items-center justify-between gap-3 rounded-xl border border-[#d6e0ed] border-l-4 bg-white p-4 shadow-[0_4px_14px_rgba(15,42,80,0.05)] transition hover:-translate-y-0.5 hover:shadow-md ${style.border}`}
+    >
+      <div className="min-w-0">
+        <p className="text-[13px] font-semibold leading-4 text-[#334155]">{title}</p>
+        <p className="mt-1 font-display text-2xl font-bold leading-none tracking-tight text-[#0b1c3a]">
+          {count}
+        </p>
+        <p className="mt-1 text-xs leading-4 text-[#64748b]">{description}</p>
       </div>
-
-      <p className="relative z-10 min-h-4 truncate whitespace-nowrap pl-[47px] text-[13px] !font-normal leading-4 text-[#c7d7f0]">
-        {description}
-      </p>
+      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${style.icon}`}>
+        <Icon size={18} strokeWidth={2} aria-hidden="true" />
+      </span>
     </article>
   );
 }
@@ -205,7 +206,7 @@ function AssignmentRow({ assignment }) {
           {assignment.isUnlocked ? (
             <Link
               to={`/student/assignments/${assignment.id}`}
-              className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#ffd34d] via-[#ffc21b] to-[#f5a900] px-4 py-2 text-sm font-semibold text-[#071d3c] shadow-[0_8px_18px_rgba(255,183,15,0.22)] transition hover:brightness-105 sm:w-auto"
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#2563eb] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1d4ed8] sm:w-auto"
             >
               {assignment.submission ? "View submission" : "Open assignment"}
               <ArrowUpRight size={16} aria-hidden="true" />
@@ -237,26 +238,7 @@ function AssignmentsHero() {
           Student workspace
         </p>
 
-        <h1 className="mt-3 font-display text-[36px] font-bold leading-[1.02] tracking-tight text-[#0b1c3a] sm:text-[44px]">
-          Assign
-          <span className="relative inline-block bg-gradient-to-r from-[#3b91f5] to-[#1668d6] bg-clip-text text-transparent">
-            ments
-            <svg
-              className="absolute -bottom-1 left-0 h-3 w-full text-[#ffb020]"
-              viewBox="0 0 210 12"
-              fill="none"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M3 9C55 3 130 2 206 6"
-                stroke="currentColor"
-                strokeWidth="4"
-                strokeLinecap="round"
-              />
-            </svg>
-          </span>
-        </h1>
+        <StudentPageTitle title="Assignments" accent="ments" />
 
         <p className="mt-4 max-w-[540px] text-[15px] leading-6 !font-medium text-[#4b5f79]">
           Practical tasks unlock after the lessons in their week.
@@ -343,24 +325,28 @@ export default function StudentAssignments() {
         title="Assignments"
         count={assignmentTotal}
         description="Across your enrolled courses"
+        tone="blue"
       />
       <AssignmentStatCard
         icon={Send}
         title="Submitted"
         count={summary?.submitted ?? 0}
         description="Including graded work"
+        tone="green"
       />
       <AssignmentStatCard
         icon={CircleCheck}
         title="Graded"
         count={summary?.graded ?? 0}
         description="Feedback has been left"
+        tone="amber"
       />
       <AssignmentStatCard
         icon={Lock}
         title="Locked"
         count={summary?.locked ?? 0}
         description="Finish earlier lessons to unlock"
+        tone="slate"
       />
     </div>
   );
@@ -376,11 +362,6 @@ export default function StudentAssignments() {
       notificationCount={pendingCount || summary?.submitted || 0}
       mainClassName="mx-auto w-full max-w-[1400px] px-4 py-5 sm:px-8 lg:px-[44px] lg:py-6"
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-0 bg-[url('/login-background.png')] bg-cover bg-center bg-no-repeat contrast-125"
-      />
-
       <div className="relative z-10 mx-auto w-full max-w-[1200px] space-y-5">
         <AssignmentsHero />
 
@@ -404,7 +385,7 @@ export default function StudentAssignments() {
                 {groups.map((group) => (
                   <section
                     key={group.courseId}
-                    className="rounded-xl border border-white/80 bg-white/85 p-2.5 shadow-[0_8px_22px_rgba(15,42,80,0.06)] backdrop-blur-sm sm:p-3"
+                    className="rounded-xl border border-[#d6e0ed] bg-white p-3 shadow-[0_8px_22px_rgba(15,42,80,0.06)] sm:p-4"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5">
                       <div className="flex min-w-0 items-center gap-2.5">
